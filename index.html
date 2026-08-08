@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#E8871E">
-<title>Radha Raman Foodshop</title>
-<meta name="description" content="Radha Raman Foodshop - fresh fruit & food, social-style shop by Rupak Ghosh">
+<title>Radha Raman Fruit Shop</title>
+<meta name="description" content="Radha Raman Fruit Shop - fresh fruit & food, social-style shop by Rupak Ghosh">
 
 
 
@@ -499,7 +499,7 @@ button{cursor:pointer;}
     <div class="entry-logo" aria-hidden="true">
       <img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">
     </div>
-    <h1 class="entry-title display">Radha Raman Foodshop</h1>
+    <h1 class="entry-title display">Radha Raman Fruit Shop</h1>
     <p class="entry-owner">Fresh picks, posted daily · Owner: Rupak Ghosh</p>
     <div class="entry-buttons">
       <button class="btn btn-primary btn-block" id="btnContinueCustomer">
@@ -576,7 +576,7 @@ button{cursor:pointer;}
           <img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">
         </div>
         <div>
-          <div class="brand-name">Radha Raman Foodshop</div>
+          <div class="brand-name">Radha Raman Fruit Shop</div>
           <div class="brand-sub" id="topbarSub">Home feed</div>
         </div>
       </div>
@@ -756,7 +756,7 @@ button{cursor:pointer;}
       </div>
 
       <div class="card" style="margin-bottom:14px;">
-        <div class="info-row"><span>Radha Raman Foodshop</span><span>Owner: Rupak Ghosh</span></div>
+        <div class="info-row"><span>Radha Raman Fruit Shop</span><span>Owner: Rupak Ghosh</span></div>
         <div class="info-row"><span>Contact</span><a href="tel:9387361589" style="font-weight:700;color:var(--mango-dark);"><i class="fa-solid fa-phone" aria-hidden="true"></i>&nbsp; 9387361589</a></div>
         <div class="info-row"><span>Today's date</span><span id="profileSessionDate">-</span></div>
         <div class="info-row"><span>Live status</span><span id="profileLiveStatus">Offline</span></div>
@@ -781,7 +781,7 @@ button{cursor:pointer;}
 
       <button class="btn btn-outline btn-block" id="btnLogout" style="color:var(--watermelon-dark);border-color:var(--watermelon);">Log out</button>
 
-      <p class="footer-note">Radha Raman Foodshop<br>Version 1 • P2P Prototype</p>
+      <p class="footer-note">Radha Raman Fruit Shop<br>Version 1 • P2P Prototype</p>
     </section>
 
     
@@ -842,9 +842,29 @@ button{cursor:pointer;}
 
 <div id="modalHost"></div>
 
+<!-- Firebase (used ONLY as a signaling / room-discovery relay so customers on
+     separate devices can find each other and the shop automatically each day.
+     Actual posts/reactions/chat still travel peer-to-peer over WebRTC once
+     connected - Firebase never stores your shop content. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDITvgQmUG7PvIeISBncib-7EPZqm_BLYo",
+    authDomain: "adha-raman-foodshop.firebaseapp.com",
+    databaseURL: "https://adha-raman-foodshop-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "adha-raman-foodshop",
+    storageBucket: "adha-raman-foodshop.firebasestorage.app",
+    messagingSenderId: "868006819510",
+    appId: "1:868006819510:web:daa2c78b5bde2d4c6a1817"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const fbRoot = firebase.database();
+</script>
+
 <script>
 const CONFIG = {
-  SHOP_NAME: "Radha Raman Foodshop",
+  SHOP_NAME: "Radha Raman Fruit Shop",
   OWNER_NAME: "Rupak Ghosh",
   SHOP_PHONE: "9387361589",
   OWNER_USERNAME: "admin",
@@ -1364,44 +1384,55 @@ function createPeerConnection(peerId, isInitiator) {
 }
 
 
+/* ===================== CROSS-DEVICE SIGNALING (Firebase Realtime DB) =====================
+   Firebase is used ONLY as a "phone book" so devices can find each other and
+   exchange the WebRTC handshake (offer/answer/ICE candidates) automatically.
+   Once connected, all real content (posts, reactions, chat) flows directly
+   peer-to-peer over the WebRTC data channel, same as before - Firebase never
+   sees or stores any of that. Each day's room auto-expires via the session
+   code already used elsewhere in this app (getTodaySessionCode). */
 function signalSend(msg) {
-  if (!STATE.signalChannel) return;
-  try { STATE.signalChannel.postMessage(Object.assign({ session: STATE.todaySessionCode }, msg)); } catch (e) {}
+  if (!STATE._localPeerId || !STATE.todaySessionCode) return;
+  try {
+    const ref = fbRoot.ref("rooms/" + STATE.todaySessionCode + "/signals").push();
+    ref.set(Object.assign({ ts: firebase.database.ServerValue.TIMESTAMP }, msg))
+      .then(() => { ref.onDisconnect().remove(); setTimeout(() => ref.remove(), 30000); });
+  } catch (e) {}
 }
 async function startAutoConnect() {
-  if (!("BroadcastChannel" in window)) return;
   STATE._localPeerId = STATE._localPeerId || uid("peer");
-  const channelName = "rr_signal_" + STATE.todaySessionCode; 
-  STATE.signalChannel = new BroadcastChannel(channelName);
-  STATE.signalChannel.onmessage = async (ev) => {
-    const data = ev.data;
-    if (!data || data.session !== STATE.todaySessionCode) return;
+  const sessionCode = STATE.todaySessionCode;
+  const signalsRef = fbRoot.ref("rooms/" + sessionCode + "/signals");
+
+  if (STATE._signalsRef) { try { STATE._signalsRef.off(); } catch (e) {} }
+  STATE._signalsRef = signalsRef;
+  STATE._seenSignalKeys = STATE._seenSignalKeys || new Set();
+
+  signalsRef.on("child_added", async (snap) => {
+    const data = snap.val();
+    const key = snap.key;
+    if (!data || STATE._seenSignalKeys.has(key)) return;
+    STATE._seenSignalKeys.add(key);
     try {
-      
       if (data.kind === "announce" && STATE.role === "owner" && data.from !== STATE._localPeerId) {
         await ownerAutoOffer(data.from, data.name);
       }
-      
-      
       else if (data.kind === "offer" && data.to === STATE._localPeerId) {
         await customerAutoAnswer(data.from, data.ownerName, data.sdp);
       }
-      
-      
       else if (data.kind === "answer" && data.to === STATE._localPeerId) {
         const entry = STATE.peers[data.from];
         if (entry && entry.conn.signalingState !== "stable") { await entry.conn.setRemoteDescription(data.sdp); }
       }
-      
       else if (data.kind === "candidate" && data.to === STATE._localPeerId && STATE.peers[data.from]) {
         try { await STATE.peers[data.from].conn.addIceCandidate(data.candidate); } catch (e) {}
       }
-    } catch (e) {  }
-  };
+    } catch (e) {}
+  });
+
   if (STATE.role === "customer") {
-    
     signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
-    
+    STATE._announceTimer && clearInterval(STATE._announceTimer);
     STATE._announceTimer = setInterval(() => {
       if (connectedPeerCount() === 0) {
         signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
