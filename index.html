@@ -1723,10 +1723,43 @@ const QR = (function () {
   function Polynomial(num, shift) { let offset = 0; while (offset < num.length && num[offset] === 0) offset++; this.num = new Array(num.length - offset + shift); for (let i = 0; i < num.length - offset; i++) this.num[i] = num[i + offset]; for (let i = 0; i < shift; i++) this.num[num.length - offset + i] = 0; }
   Polynomial.prototype = { get: function (i) { return this.num[i]; }, getLength: function () { return this.num.length; }, multiply: function (e) { const n = new Array(this.getLength() + e.getLength() - 1).fill(0); for (let i = 0; i < this.getLength(); i++) for (let j = 0; j < e.getLength(); j++) n[i + j] ^= gexp(glog(this.get(i)) + glog(e.get(j))); return new Polynomial(n, 0); }, mod: function (e) { if (this.getLength() - e.getLength() < 0) return this; const ratio = glog(this.get(0)) - glog(e.get(0)); const n = this.num.slice(); for (let i = 0; i < e.getLength(); i++) n[i] ^= gexp(glog(e.get(i)) + ratio); return new Polynomial(n, 0).mod(e); } };
   function getErrorCorrectPolynomial(len) { let a = new Polynomial([1], 0); for (let i = 0; i < len; i++) a = a.multiply(new Polynomial([1, gexp(i)], 0)); return a; }
-  // Minimal capacity table for versions 1-10, EC level L, byte mode
-  const CAP = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271];
-  const RS_BLOCK = [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18];
-  function chooseVersion(len) { for (let v = 1; v <= 10; v++) if (CAP[v] >= len) return v; return 10; }
+  // Two distinct QR spec tables for versions 1-10 at EC level L
+  // (ISO/IEC 18004 Annex tables) - these must NOT be the same array:
+  //  - CHAR_CAP: max input characters in byte mode, used only to pick
+  //    a version big enough for the input text.
+  //  - DATA_CODEWORDS: actual data codeword capacity in bytes, used to
+  //    size the bit buffer and Reed-Solomon input. This is a few bytes
+  //    larger than CHAR_CAP because it includes the mode indicator and
+  //    length-field overhead budget.
+  //  - EC_CODEWORDS: error-correction codeword count (Reed-Solomon
+  //    generator polynomial degree).
+  // A previous version of this code used one array for both CHAR_CAP
+  // and DATA_CODEWORDS, and had wrong EC_CODEWORDS values for several
+  // versions. Both mistakes corrupted the Reed-Solomon codewords,
+  // producing a QR that visually looked fine (finder squares etc. are
+  // unaffected) but failed checksum on every real scanner - phone
+  // cameras, Google Lens, dedicated QR apps - so it would never
+  // recognize/open the link even though a person could see "a QR code".
+  const CHAR_CAP = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271];
+  const DATA_CODEWORDS = [0, 19, 34, 55, 80, 108, 136, 156, 194, 232, 274];
+  // EC codewords PER BLOCK (not total) - versions 6-10 at level L split the
+  // data into multiple interleaved Reed-Solomon blocks per the QR spec.
+  const EC_CODEWORDS_PER_BLOCK = [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18];
+  // Block layout at EC level L: [numBlocksGroup1, dataCodewordsPerBlockGroup1, numBlocksGroup2, dataCodewordsPerBlockGroup2]
+  // A previous version of this code treated every version as a single RS
+  // block, which is correct for versions 1-5 but wrong for 6+, where the
+  // spec requires splitting into multiple blocks and interleaving their
+  // codewords. That mismatch produced QR codes whose finder/timing
+  // patterns looked fine but whose data+EC codewords were laid out in the
+  // wrong order, so real scanners (Google Lens, camera apps) could detect
+  // "a QR" but fail to decode any payload of version 6 or larger (108+
+  // chars). Fixed below by properly splitting and interleaving blocks.
+  const BLOCK_LAYOUT = [
+    null,
+    [1, 19, 0, 0], [1, 34, 0, 0], [1, 55, 0, 0], [1, 80, 0, 0], [1, 108, 0, 0],
+    [2, 68, 0, 0], [2, 78, 0, 0], [2, 97, 0, 0], [2, 116, 0, 0], [2, 68, 2, 69]
+  ];
+  function chooseVersion(len) { for (let v = 1; v <= 10; v++) if (CHAR_CAP[v] >= len) return v; return 10; }
   const ALIGN_PATTERNS = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34], 7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50] };
   function QRCode(typeNumber, data) {
     this.typeNumber = typeNumber; this.errorCorrectLevel = EC_L; this.modules = null; this.moduleCount = 0; this.dataCache = null; this.dataList = [new QR8bitByte(data)];
@@ -1751,24 +1784,46 @@ const QR = (function () {
     mapData: function (data, maskPattern) { let inc = -1, row = this.moduleCount - 1, bitIndex = 7, byteIndex = 0; const maskFunc = QRUtil.getMaskFunction(maskPattern); for (let col = this.moduleCount - 1; col > 0; col -= 2) { if (col === 6) col--; while (true) { for (let c = 0; c < 2; c++) { if (this.modules[row][col - c] == null) { let dark = false; if (byteIndex < data.length) { dark = (((data[byteIndex] >>> bitIndex) & 1) === 1); } if (maskFunc(row, col - c)) dark = !dark; this.modules[row][col - c] = dark; bitIndex--; if (bitIndex === -1) { byteIndex++; bitIndex = 7; } } } row += inc; if (row < 0 || this.moduleCount <= row) { row -= inc; inc = -inc; break; } } } }
   };
   QRCode.createData = function (typeNumber, ecLevel, dataList) {
-    const rsBlockCount = RS_BLOCK[typeNumber];
     const buffer = new BitBuffer();
-    for (let i = 0; i < dataList.length; i++) { const data = dataList[i]; buffer.put(data.mode, 4); buffer.put(data.getLength(), 8); data.write(buffer); }
-    const totalDataCount = CAP[typeNumber];
+    // Byte-mode length field is 8 bits for versions 1-9 but 16 bits for
+    // versions 10-26 (and beyond) per the QR spec - versions >= 10 need
+    // more bits since payloads can exceed 255 bytes. A previous version
+    // of this code always used 8 bits, which corrupted the mode/length
+    // header (and therefore every following bit) for any version-10
+    // QR code, causing every mask pattern to fail to decode even though
+    // the finder/timing/format patterns all looked correct.
+    for (let i = 0; i < dataList.length; i++) { const data = dataList[i]; buffer.put(data.mode, 4); buffer.put(data.getLength(), typeNumber >= 10 ? 16 : 8); data.write(buffer); }
+    const totalDataCount = DATA_CODEWORDS[typeNumber];
     if (buffer.length + 4 <= totalDataCount * 8) buffer.put(0, 4);
     while (buffer.length % 8 !== 0) buffer.putBit(false);
     while (true) { if (buffer.length >= totalDataCount * 8) break; buffer.put(0xEC, 8); if (buffer.length >= totalDataCount * 8) break; buffer.put(0x11, 8); }
-    return QRCode.createBytes(buffer, typeNumber, rsBlockCount);
+    return QRCode.createBytes(buffer, typeNumber);
   };
-  QRCode.createBytes = function (buffer, typeNumber, rsBlockCount) {
-    const totalDataCount = CAP[typeNumber];
-    const dcodeBytes = []; for (let i = 0; i < totalDataCount; i++) dcodeBytes[i] = 0xff & buffer.buffer[i] || 0;
-    const rsPoly = getErrorCorrectPolynomial(rsBlockCount);
-    const rawPoly = new Polynomial(dcodeBytes, rsPoly.getLength() - 1);
-    const modPoly = rawPoly.mod(rsPoly);
-    const ecdata = new Array(rsPoly.getLength() - 1);
-    for (let i = 0; i < ecdata.length; i++) { const modIndex = i + modPoly.getLength() - ecdata.length; ecdata[i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0; }
-    return dcodeBytes.concat(ecdata);
+  // Splits the data codewords into the spec-mandated blocks, runs
+  // Reed-Solomon per block, then interleaves data codewords (round-robin
+  // across blocks) followed by interleaved EC codewords - required for
+  // any version whose block layout has more than one block (6+ at level L).
+  QRCode.createBytes = function (buffer, typeNumber) {
+    const ecPerBlock = EC_CODEWORDS_PER_BLOCK[typeNumber];
+    const [n1, len1, n2, len2] = BLOCK_LAYOUT[typeNumber];
+    const allBytes = buffer.buffer;
+    const blocks = [];
+    let offset = 0;
+    for (let i = 0; i < n1; i++) { blocks.push(allBytes.slice(offset, offset + len1).map(b => 0xff & b || 0)); while (blocks[blocks.length - 1].length < len1) blocks[blocks.length - 1].push(0); offset += len1; }
+    for (let i = 0; i < n2; i++) { blocks.push(allBytes.slice(offset, offset + len2).map(b => 0xff & b || 0)); while (blocks[blocks.length - 1].length < len2) blocks[blocks.length - 1].push(0); offset += len2; }
+    const rsPoly = getErrorCorrectPolynomial(ecPerBlock);
+    const ecBlocks = blocks.map(dcodeBytes => {
+      const rawPoly = new Polynomial(dcodeBytes, rsPoly.getLength() - 1);
+      const modPoly = rawPoly.mod(rsPoly);
+      const ecdata = new Array(rsPoly.getLength() - 1);
+      for (let i = 0; i < ecdata.length; i++) { const modIndex = i + modPoly.getLength() - ecdata.length; ecdata[i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0; }
+      return ecdata;
+    });
+    const maxDataLen = Math.max(...blocks.map(b => b.length));
+    const result = [];
+    for (let i = 0; i < maxDataLen; i++) for (const b of blocks) if (i < b.length) result.push(b[i]);
+    for (let i = 0; i < ecPerBlock; i++) for (const b of ecBlocks) result.push(b[i]);
+    return result;
   };
   const QRUtil = {
     getBCHTypeNumber: function (t) { let d = t << 12; while (getBCHDigit(d) - getBCHDigit(G18) >= 0) d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18))); return (t << 12) | d; },
