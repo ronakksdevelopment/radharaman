@@ -1942,26 +1942,39 @@ function drawSessionQR(canvasEl) {
 }
 
 
+const APP_ICON_URL = "https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png";
 const MANIFEST_OBJ = {
   name: CONFIG.SHOP_NAME,
   short_name: "Radha Raman",
   description: "Fresh fruit & food shop - social-style ordering and updates",
-  start_url: ".",
+  start_url: (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL") ? CONFIG.APP_URL : "./",
+  scope: (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL") ? CONFIG.APP_URL : "./",
+  id: "/",
   display: "standalone",
+  display_override: ["standalone", "minimal-ui"],
+  orientation: "portrait-primary",
   background_color: "#FFF8ED",
   theme_color: "#E8871E",
   icons: [
-    { src: "https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png", sizes: "192x192", type: "image/png" },
-    { src: "https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png", sizes: "512x512", type: "image/png" }
+    { src: APP_ICON_URL, sizes: "192x192", type: "image/png", purpose: "any" },
+    { src: APP_ICON_URL, sizes: "512x512", type: "image/png", purpose: "any" },
+    { src: APP_ICON_URL, sizes: "192x192", type: "image/png", purpose: "maskable" },
+    { src: APP_ICON_URL, sizes: "512x512", type: "image/png", purpose: "maskable" }
   ]
 };
 function attachManifest() {
   try {
-    const blob = new Blob([JSON.stringify(MANIFEST_OBJ)], { type: "application/manifest+json" });
-    const url = URL.createObjectURL(blob);
+    // A data: URI is used instead of a blob: URI. Chrome's installability
+    // checks (and beforeinstallprompt) treat blob: manifests as unreliable
+    // across versions, but a data: URI is a stable, immediately-fetchable
+    // resource attached to the document itself.
+    if (document.getElementById("appManifestLink")) return;
+    const json = JSON.stringify(MANIFEST_OBJ);
+    const dataUrl = "data:application/manifest+json;charset=utf-8," + encodeURIComponent(json);
     const link = document.createElement("link");
+    link.id = "appManifestLink";
     link.rel = "manifest";
-    link.href = url;
+    link.href = dataUrl;
     document.head.appendChild(link);
   } catch (e) { console.warn("Manifest attach failed", e); }
 }
@@ -1970,52 +1983,111 @@ function attachManifest() {
 
 
 const SERVICE_WORKER_SRC = `
-const CACHE = 'radharaman-v1';
+const CACHE = 'radharaman-v2';
 self.addEventListener('install', e => { self.skipWaiting(); });
-self.addEventListener('activate', e => { self.clients.claim(); });
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+    )).then(() => self.clients.claim())
+  );
+});
 self.addEventListener('fetch', e => {
-  // Network-first with cache fallback for the app shell only.
+  if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then(res => {
       const resClone = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, resClone)).catch(()=>{});
       return res;
-    }).catch(() => caches.match(e.request))
+    }).catch(() => caches.match(e.request).then(cached => cached || caches.match('/')))
   );
 });
 `;
 async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
-    const blob = new Blob([SERVICE_WORKER_SRC], { type: "text/javascript" });
-    const url = URL.createObjectURL(blob);
-    await navigator.serviceWorker.register(url);
+    // A data: URI is used instead of a blob: URI. Many Chrome versions
+    // outright reject navigator.serviceWorker.register() on a blob: URL
+    // ("URL protocol of the current origin ('blob') is not supported"),
+    // which silently prevents the service worker from ever controlling the
+    // page. Without a controlling service worker, Chrome's installability
+    // criteria are never met, beforeinstallprompt never fires, and the
+    // Install button stays permanently disabled. A data: URI registers
+    // reliably and satisfies the same-origin-derived requirement.
+    const dataUrl = "data:text/javascript;charset=utf-8," + encodeURIComponent(SERVICE_WORKER_SRC);
+    const reg = await navigator.serviceWorker.register(dataUrl);
+    STATE.swRegistered = true;
+    return reg;
   } catch (e) {
-    
-    
-    
+    STATE.swRegistered = false;
     console.warn("Service worker registration unavailable in this browser:", e.message);
   }
 }
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+function isInStandaloneMode() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
 function initInstallPrompt() {
+  // Attach the manifest and register the service worker as early as
+  // possible (page load), not only after login - Chrome evaluates
+  // installability against the document as a whole, and waiting until
+  // enterApp() delays (and can miss) the beforeinstallprompt signal.
+  attachManifest();
+  registerServiceWorker();
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     STATE.deferredInstallPrompt = e;
-    $("#btnInstallApp").disabled = false;
+    const btn = $("#btnInstallApp");
+    if (btn) { btn.disabled = false; btn.textContent = "Install"; }
   });
   window.addEventListener("appinstalled", () => {
     toast("App installed");
     STATE.deferredInstallPrompt = null;
+    const btn = $("#btnInstallApp");
+    if (btn) { btn.disabled = true; btn.textContent = "Installed"; }
   });
+
+  if (isInStandaloneMode()) {
+    const btn = $("#btnInstallApp");
+    if (btn) { btn.disabled = true; btn.textContent = "Installed"; }
+  }
 }
 async function triggerInstall() {
+  if (isInStandaloneMode()) {
+    toast("Already installed as an app.");
+    return;
+  }
+  if (isIOS()) {
+    // iOS Safari has no beforeinstallprompt API at all - "Install" there
+    // means the user must use the native Share sheet. This previously left
+    // the button just quietly doing nothing / looking broken on iPhones.
+    openModal("Add to Home Screen (iOS)", `
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <p>iOS doesn't allow apps to trigger install directly. To install as a real full-screen app:</p>
+          <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+            <li>Tap the <b>Share</b> icon <i class="fa-solid fa-arrow-up-from-bracket"></i> in Safari's toolbar</li>
+            <li>Scroll down and tap <b>Add to Home Screen</b></li>
+            <li>Tap <b>Add</b> in the top right</li>
+          </ol>
+          <p style="opacity:.75;font-size:13px;">Once added, open it from your Home Screen icon (not Safari) - it'll run full-screen like a native app, with no browser bar.</p>
+        </div>`);
+    return;
+  }
   if (!STATE.deferredInstallPrompt) {
-    toast("Install isn't available in this browser right now - try Chrome/Edge on Android, or use 'Add to Home Screen' from your browser menu.");
+    toast("Install isn't available yet - if you just opened the page, wait a moment, or use your browser menu's 'Add to Home Screen' / 'Install app' option.");
     return;
   }
   STATE.deferredInstallPrompt.prompt();
-  await STATE.deferredInstallPrompt.userChoice;
+  const choice = await STATE.deferredInstallPrompt.userChoice;
   STATE.deferredInstallPrompt = null;
+  if (choice && choice.outcome === "dismissed") {
+    const btn = $("#btnInstallApp");
+    if (btn) btn.disabled = false;
+  }
 }
 
 
@@ -2038,8 +2110,6 @@ function enterApp() {
   renderSessionCodeEverywhere();
   loadPostsFromDB().then(renderFeed);
   renderChatList();
-  attachManifest();
-  registerServiceWorker();
   startAutoConnect();
 }
 const SCREEN_TITLES = { home: "Home feed", create: "New post", live: "Shop session", shop: "Connect to shop", chatlist: "Chats", chatthread: "Chat", activity: "Activity", profile: "Your profile", customers: "Customers" };
