@@ -323,6 +323,19 @@ button{cursor:pointer;}
 .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:5px;}
 .field-error{font-size:12px;color:var(--watermelon-dark);margin-top:5px;font-weight:600;}
 
+/* ---------- Password field with show/hide toggle ---------- */
+.password-field-wrap{position:relative;}
+.password-field-wrap input[type=password],
+.password-field-wrap input[type=text]{padding-right:44px;}
+.password-toggle-btn{
+  position:absolute;top:50%;right:4px;transform:translateY(-50%);
+  width:36px;height:36px;border:none;background:none;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-soft);transition:background .15s ease,color .15s ease;
+}
+.password-toggle-btn:hover{background:var(--cream-2);color:var(--ink);}
+.password-toggle-btn:active{transform:translateY(-50%) scale(0.9);}
+
 .card{
   background:var(--paper);border-radius:var(--radius);
   box-shadow:var(--shadow);padding:18px;
@@ -633,7 +646,12 @@ button{cursor:pointer;}
         </div>
         <div class="field">
           <label for="ownerPass">Password</label>
-          <input type="password" id="ownerPass" autocomplete="current-password">
+          <div class="password-field-wrap">
+            <input type="password" id="ownerPass" autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" id="toggleOwnerPass" aria-label="Show password" aria-pressed="false">
+              <i class="fa-solid fa-eye" aria-hidden="true"></i>
+            </button>
+          </div>
           <p class="field-error hidden" id="ownerLoginError"></p>
         </div>
         <button type="submit" class="btn btn-danger btn-block">Log in as Owner</button>
@@ -1792,7 +1810,16 @@ const QR = (function () {
   return { renderToCanvas };
 })();
 function drawSessionQR(canvasEl) {
-  const url = CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL" ? CONFIG.APP_URL : ("RadhaRamanFoodshop-open-" + formatDisplayDate().replace(/-/g, ""));
+  // The QR must always encode a real, absolute URL - any external
+  // scanner (phone camera, Google Lens, a dedicated QR app) only shows
+  // an "Open link" action for genuine URLs, not for plain text/IDs. If
+  // the deployer hasn't set CONFIG.APP_URL yet, fall back to the page's
+  // own live address (window.location.href) so the code is still a
+  // real, scannable, clickable link wherever this file is actually
+  // hosted - instead of an inert placeholder string no scanner can act on.
+  const url = (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL")
+    ? CONFIG.APP_URL
+    : window.location.href.split("#")[0];
   QR.renderToCanvas(canvasEl, url, 220);
 }
 
@@ -2296,7 +2323,7 @@ function closeModal() { $("#modalHost").innerHTML = ""; }
 function showFullscreenQR() {
   openModal(CONFIG.SHOP_NAME + " - Scan to Open", `
     <div style="text-align:center;">
-      <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">Scan to open the shop, no code needed, the app connects automatically once it loads.</p>
+      <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">Scan with your phone's camera, Google Lens, or any QR scanner app, no code needed, the app connects automatically once it loads.</p>
       <div id="qrCanvasWrap"><canvas id="fullscreenQrCanvas" role="img" aria-label="QR code linking to the shop"></canvas></div>
     </div>`, (body) => {
     const canvas = body.querySelector("#fullscreenQrCanvas");
@@ -2342,6 +2369,28 @@ function initEventHandlers() {
       errEl.classList.add("hidden");
       toast("Welcome back, " + CONFIG.OWNER_NAME);
     }
+  });
+
+  // Password show/hide toggle
+  $("#toggleOwnerPass").addEventListener("click", () => {
+    const input = $("#ownerPass");
+    const btn = $("#toggleOwnerPass");
+    const icon = btn.querySelector("i");
+    const nowVisible = input.type === "password";
+    input.type = nowVisible ? "text" : "password";
+    icon.className = nowVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+    btn.setAttribute("aria-label", nowVisible ? "Hide password" : "Show password");
+    btn.setAttribute("aria-pressed", nowVisible ? "true" : "false");
+    // Keep focus and caret in the field after toggling, rather than
+    // stealing focus onto the icon button.
+    input.focus();
+    // setSelectionRange throws in some browsers when input.type is
+    // "password" (Firefox/Safari disallow it on that type) - guard so
+    // toggling back to hidden never throws and breaks the click handler.
+    try {
+      const pos = input.value.length;
+      input.setSelectionRange(pos, pos);
+    } catch (err) { /* not supported for type=password in this browser, safe to ignore */ }
   });
 
   // Bottom nav (both)
