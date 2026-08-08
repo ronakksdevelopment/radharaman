@@ -880,7 +880,12 @@ const CONFIG = {
   STUN_SERVERS: [
     { urls: "stun:stun.l.google.com:19302" },
     { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:global.stun.twilio.com:3478" }
+    { urls: "stun:global.stun.twilio.com:3478" },
+    { urls: "stun:stun.relay.metered.ca:80" },
+    { urls: "turn:asia.relay.metered.ca:80", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
+    { urls: "turn:asia.relay.metered.ca:80?transport=tcp", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
+    { urls: "turn:asia.relay.metered.ca:443", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
+    { urls: "turns:asia.relay.metered.ca:443?transport=tcp", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" }
   ]
 };
 
@@ -1350,6 +1355,14 @@ function createPeerConnection(peerId, isInitiator) {
     }
     if (["disconnected", "failed", "closed"].includes(pc.connectionState)) {
       renderPeerLists();
+      if (pc.connectionState === "failed" && isInitiator && STATE.role === "owner") {
+        setTimeout(() => {
+          if (STATE.peers[peerId] && STATE.peers[peerId].conn === pc && pc.connectionState === "failed") {
+            closePeerConnection(peerId);
+            ownerAutoOffer(peerId, entry.name);
+          }
+        }, 3000);
+      }
     }
   };
   
@@ -1761,6 +1774,13 @@ function stopQrScanStream() {
     try { STATE.scanStream.getTracks().forEach(t => t.stop()); } catch (e) {}
     STATE.scanStream = null;
   }
+}
+function closePeerConnection(peerId) {
+  const entry = STATE.peers[peerId];
+  if (!entry) return;
+  try { entry.dc && entry.dc.close(); entry.conn && entry.conn.close(); } catch (e) {}
+  delete STATE.peers[peerId];
+  renderPeerLists();
 }
 function closeAllPeerConnections() {
   Object.values(STATE.peers).forEach(entry => {
