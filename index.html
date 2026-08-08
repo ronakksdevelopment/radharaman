@@ -7,79 +7,17 @@
 <title>Radha Raman Foodshop</title>
 <meta name="description" content="Radha Raman Foodshop - fresh fruit & food, social-style shop by Rupak Ghosh">
 
-<!--
-  =====================================================================
-  Radha Raman Foodshop - Version 1 (single-file PWA prototype)
-  =====================================================================
-  ARCHITECTURE NOTES (read before extending):
 
-  - This is a STATIC, single-file app intended for GitHub Pages hosting.
-    There is NO backend server, NO database server, NO Firebase/Supabase.
 
-  - localStorage is used only for small state: login/session flags,
-    customer profile, settings, today's session code. It is LOCAL TO
-    THIS BROWSER/DEVICE ONLY. It does NOT sync between phones.
 
-  - IndexedDB is used for larger data: posts (incl. images), comments,
-    reactions, chat history. Also local-only, per device.
-
-  - BroadcastChannel is used for instant sync between TABS/WINDOWS of
-    the SAME browser on the SAME device (e.g. owner tab + customer tab
-    open on one laptop for demoing/testing). It cannot reach another
-    phone.
-
-  - WebRTC DataChannel is used for real peer-to-peer messaging/post
-    sync BETWEEN DIFFERENT DEVICES. WebRTC needs a "signaling" step to
-    exchange connection metadata (SDP offer/answer + ICE candidates)
-    before a direct P2P link can open. GitHub Pages cannot run a
-    signaling server (it's static hosting), so Version 1 implements
-    MANUAL signaling: the owner generates a connection blob (as text
-    and as a QR code), the customer pastes/scans it, generates an
-    answer blob, and sends it back (paste/QR/Web Share). This is a
-    real, working WebRTC connection - just with manual instead of
-    automatic signaling. Once connected, sync is genuinely live.
-
-  - The daily DDMMYYYY code is a discovery/session LABEL, not a
-    password and not a magic internet-wide rendezvous mechanism. It
-    lets people confirm they're joining the *same day's* session when
-    exchanging connection data. It is regenerated automatically at
-    local midnight and does not delete any existing posts/data.
-
-  - TURN/STUN: a public STUN server is configured so WebRTC can
-    discover public IP/port info (NAT traversal) for many home/mobile
-    networks. Some networks (symmetric NAT, strict corporate/mobile
-    carrier NAT) will still fail to connect without a TURN relay
-    server, which requires paid/hosted infrastructure. This is called
-    out in the Connect screen UI so the limitation isn't hidden.
-
-  - VERSION 2 UPGRADE PATH: this file is organized so the inline
-    <style> block can become styles.css, the inline manifest JSON
-    object can be saved as manifest.webmanifest, and the inline
-    service worker source string can be saved as service-worker.js.
-    Search this file for "V2 SPLIT POINT" comments marking exactly
-    where each piece would be extracted.
-  =====================================================================
--->
-
-<!-- V2 SPLIT POINT: manifest - inlined below as a Blob URL because a
-     single HTML file cannot reference an external manifest.webmanifest
-     on GitHub Pages without a second file. See PWA INSTALL section in
-     the script for how this is generated at runtime. -->
 <link rel="icon" id="favicon" href="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png">
-<!-- Font Awesome Free (icon font, loaded via CDN, no emoji used anywhere
-     in this app except the 6 reaction emoji). No SRI hash pinned here on
-     purpose - a mismatched integrity hash makes the browser silently
-     block the whole stylesheet with no visible error, which is the
-     single most common cause of "icons not showing" bugs. A JS fallback
-     below also re-checks after load and swaps to a second free CDN if
-     the icon font failed to apply, so icons stay reliable across
-     devices/networks even if one CDN edge is slow or blocked. -->
+
 <link rel="stylesheet" id="faStylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <script>
-  // Font Awesome CDN fallback: if the primary stylesheet fails to load
-  // (blocked domain, offline-first cache miss, flaky network), swap to
-  // a second free CDN so icons still render instead of showing blank
-  // boxes/squares. Runs once, early, before the icon font is needed.
+  
+  
+  
+  
   (function () {
     var primary = document.getElementById("faStylesheet");
     var switched = false;
@@ -94,9 +32,9 @@
       document.head.appendChild(fallback);
     }
     primary.addEventListener("error", useFallback);
-    // Belt-and-braces: some browsers don't fire "error" for CSS that
-    // 404s via certain proxies. After load, verify an actual FA glyph
-    // renders (has real width); if not, fall back too.
+    
+    
+    
     window.addEventListener("load", function () {
       setTimeout(function () {
         var test = document.createElement("i");
@@ -112,19 +50,7 @@
 </script>
 
 <style>
-/* =====================================================================
-   DESIGN TOKENS
-   Palette: solid multi-fruit colors, no gradients anywhere in this
-   design. Mango orange (primary), watermelon red (live/alert), kiwi
-   green (secondary/success), blueberry indigo (info/links), banana
-   yellow (highlight accents), grape (rare tertiary accent), cream
-   (background), ink (text). Every color below is used as a flat
-   solid fill only - card headers, badges, buttons and icons pick a
-   single fruit color rather than blending two.
-   Signature element: solid-color "fruit tag" pills and a stacked
-   citrus-slice mark, echoing a fruit-crate stencil stamp, built
-   entirely from flat solid fills, never gradients.
-   ===================================================================== */
+
 :root{
   --mango:#E8871E;
   --mango-dark:#C56A0E;
@@ -192,14 +118,12 @@ a{color:inherit;}
 button{cursor:pointer;}
 :focus-visible{outline:3px solid var(--mango-dark);outline-offset:2px;border-radius:6px;}
 
-/* Google-ish fallback fonts loaded from a safe self-contained stack;
-   no external font requests are made - system fonts only, per the
-   "avoid unnecessary dependencies" requirement. */
+
 
 .hidden{display:none !important;}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 
-/* ---------- App shell ---------- */
+
 #app{
   max-width:520px;
   margin:0 auto;
@@ -214,7 +138,7 @@ button{cursor:pointer;}
   body{background:var(--cream-2);}
 }
 
-/* ---------- Top bar ---------- */
+
 .topbar{
   position:sticky;top:0;z-index:40;
   display:flex;align-items:center;justify-content:space-between;
@@ -248,7 +172,7 @@ button{cursor:pointer;}
   background:var(--watermelon);border:2px solid var(--paper);
 }
 
-/* ---------- Stamp badge (signature element) ---------- */
+
 .stamp{
   display:inline-flex;align-items:center;gap:6px;
   padding:5px 12px 5px 10px;
@@ -264,11 +188,11 @@ button{cursor:pointer;}
 .stamp.live .dot{animation:blink 1.4s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
 
-/* ---------- Screens ---------- */
+
 .screen{padding:16px;animation:fadein .25s ease;}
 @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-/* ---------- Entry / Login screens ---------- */
+
 .entry-wrap{
   min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
@@ -305,7 +229,7 @@ button{cursor:pointer;}
 
 .entry-footnote{margin-top:26px;font-size:11.5px;color:var(--ink-soft);line-height:1.5;max-width:320px;}
 
-/* ---------- Forms ---------- */
+
 .field{margin-bottom:14px;text-align:left;}
 .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink-soft);}
 .field input[type=text],
@@ -323,7 +247,7 @@ button{cursor:pointer;}
 .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:5px;}
 .field-error{font-size:12px;color:var(--watermelon-dark);margin-top:5px;font-weight:600;}
 
-/* ---------- Password field with show/hide toggle ---------- */
+
 .password-field-wrap{position:relative;}
 .password-field-wrap input[type=password],
 .password-field-wrap input[type=text]{padding-right:44px;}
@@ -348,7 +272,7 @@ button{cursor:pointer;}
   background:none;border:none;padding:6px 0;margin-bottom:6px;
 }
 
-/* ---------- Bottom nav ---------- */
+
 .bottom-nav{
   position:fixed;left:50%;transform:translateX(-50%);
   bottom:0;width:100%;max-width:520px;
@@ -369,7 +293,7 @@ button{cursor:pointer;}
   min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;
 }
 
-/* ---------- Feed / posts ---------- */
+
 .feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .section-title{font-size:19px;margin:0;}
 .session-chip{
@@ -426,31 +350,14 @@ button{cursor:pointer;}
 .reaction-picker button:hover{transform:scale(1.25);}
 .action-wrap{position:relative;}
 
-.comments-block{border-top:1px solid var(--line);padding:10px 14px 12px;}
-.comment-item{display:flex;gap:8px;margin-bottom:10px;}
-.comment-avatar{
-  width:28px;height:28px;border-radius:50%;background:var(--kiwi-light);color:var(--kiwi);
-  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;
-}
-.comment-bubble{background:var(--cream-2);border-radius:14px;padding:8px 12px;flex:1;}
-.comment-name{font-size:12px;font-weight:700;}
-.comment-text{font-size:13px;line-height:1.4;word-break:break-word;}
-.comment-time{font-size:10px;color:var(--ink-soft);margin-top:2px;}
-.comment-input-row{display:flex;gap:8px;margin-top:8px;align-items:center;}
-.comment-input-row input{
-  flex:1;border:1.5px solid var(--line);border-radius:100px;padding:10px 14px;font-size:16px;background:var(--paper);color:var(--ink);
-}
-.comment-send{
-  width:36px;height:36px;border-radius:50%;background:var(--mango);color:#fff;border:none;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
+
 
 .empty-state{text-align:center;padding:60px 24px;color:var(--ink-soft);}
 .empty-state svg{margin-bottom:12px;opacity:.6;}
 .empty-state h3{color:var(--ink);margin:0 0 6px;font-size:16px;}
 .empty-state p{font-size:13px;margin:0;}
 
-/* ---------- Create post ---------- */
+
 .image-drop{
   border:2px dashed var(--line);border-radius:var(--radius);
   padding:24px;text-align:center;background:var(--cream-2);margin-bottom:14px;position:relative;overflow:hidden;
@@ -462,7 +369,7 @@ button{cursor:pointer;}
   border-radius:100px;padding:9px 15px;font-size:13px;font-weight:600;color:var(--ink);
 }
 
-/* ---------- Live / session panel ---------- */
+
 .live-panel{
   background:var(--mango);
   border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;
@@ -490,7 +397,7 @@ button{cursor:pointer;}
 .peer-dot{width:9px;height:9px;border-radius:50%;background:var(--kiwi);flex-shrink:0;}
 .peer-dot.pending{background:var(--mango);}
 
-/* ---------- Chat ---------- */
+
 .chat-thread{padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 230px);min-height:calc(100dvh - 230px);}
 .msg-row{display:flex;max-width:80%;}
 .msg-row.me{align-self:flex-end;flex-direction:row-reverse;}
@@ -518,7 +425,7 @@ button{cursor:pointer;}
 .chat-list-name{font-size:14px;font-weight:700;}
 .chat-list-preview{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* ---------- Profile ---------- */
+
 .profile-hero{text-align:center;padding:20px 16px 8px;}
 .profile-avatar{
   width:84px;height:84px;border-radius:24px;margin:0 auto 12px;
@@ -539,7 +446,7 @@ button{cursor:pointer;}
 }
 .toggle.on::after{transform:translateX(20px);}
 
-/* ---------- Toast / modal ---------- */
+
 #toastHost{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(94px + var(--safe-bottom));z-index:200;display:flex;flex-direction:column;gap:8px;width:calc(100% - 32px);max-width:480px;pointer-events:none;}
 .toast{
   background:var(--ink);color:var(--cream);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;
@@ -587,7 +494,7 @@ button{cursor:pointer;}
 
 <div id="app">
 
-  <!-- ================= ENTRY SCREEN ================= -->
+  
   <section id="screen-entry" class="screen entry-wrap">
     <div class="entry-logo" aria-hidden="true">
       <img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">
@@ -607,7 +514,7 @@ button{cursor:pointer;}
     <p class="entry-footnote">Version 1 · P2P Prototype - runs entirely in your browser. No account data leaves your device except what you choose to sync peer-to-peer.</p>
   </section>
 
-  <!-- ================= CUSTOMER LOGIN SCREEN ================= -->
+  
   <section id="screen-customer-login" class="screen entry-wrap hidden">
     <button class="back-link" id="backFromCustomerLogin" aria-label="Go back">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
@@ -631,7 +538,7 @@ button{cursor:pointer;}
     </div>
   </section>
 
-  <!-- ================= OWNER LOGIN SCREEN ================= -->
+  
   <section id="screen-owner-login" class="screen entry-wrap hidden">
     <button class="back-link" id="backFromOwnerLogin" aria-label="Go back">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
@@ -659,7 +566,7 @@ button{cursor:pointer;}
     </div>
   </section>
 
-  <!-- ================= MAIN APP (after login) ================= -->
+  
   <div id="mainApp" class="hidden">
     <div id="offlineBanner" class="offline-banner hidden">You're offline - showing saved posts. New activity will sync when you reconnect.</div>
 
@@ -684,7 +591,7 @@ button{cursor:pointer;}
       </div>
     </header>
 
-    <!-- ---- HOME / FEED ---- -->
+    
     <section id="screen-home" class="screen">
       <div class="feed-header">
         <h2 class="section-title display">Today's Picks</h2>
@@ -693,7 +600,7 @@ button{cursor:pointer;}
       <div id="feedList"></div>
     </section>
 
-    <!-- ---- OWNER: CREATE POST ---- -->
+    
     <section id="screen-create" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">New Post</h2>
       <form id="formCreatePost">
@@ -739,7 +646,7 @@ button{cursor:pointer;}
       </form>
     </section>
 
-    <!-- ---- LIVE / SESSION (owner) ---- -->
+    
     <section id="screen-live" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">Shop Session</h2>
       <div class="live-panel">
@@ -760,9 +667,11 @@ button{cursor:pointer;}
       </div>
 
       <div class="card" style="margin-bottom:16px;">
-        <h3 style="margin:0 0 4px;font-size:15px;"><i class="fa-solid fa-tower-broadcast" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; Auto-connect</h3>
-        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 4px;">Customers on this device or browser link up automatically, no code needed. New posts, comments and reactions sync the instant a customer tab opens today.</p>
-        <p style="font-size:11.5px;color:var(--ink-soft);margin:0;">For a customer on a separate phone to get truly live updates, a small internet relay would be required in a future version; on this static hosting, their app still shows every post the moment they open it and refreshes automatically as new ones publish while their tab stays open.</p>
+        <h3 style="margin:0 0 4px;font-size:15px;"><i class="fa-solid fa-tower-broadcast" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; Cross-device connect</h3>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;">Customers on this device or browser link up automatically, no code needed. To link a customer on a <b>separate phone</b>, tap below to generate a one-time connect QR - they scan it once with their app, and a real direct P2P link opens between your two devices for live posts and chat.</p>
+        <button class="btn btn-block" id="btnStartDeviceConnect" style="background:var(--blueberry);color:#fff;">
+          <i class="fa-solid fa-qrcode" aria-hidden="true"></i>&nbsp; Connect a Customer's Device
+        </button>
       </div>
 
       <div class="card">
@@ -771,10 +680,10 @@ button{cursor:pointer;}
       </div>
     </section>
 
-    <!-- ---- SHOP / CONNECT (customer) ---- -->
+    
     <section id="screen-shop" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:4px;">Shop Connection</h2>
-      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;">You are linked to today's shop session automatically, no code required. New posts, replies and chat arrive live while you're connected.</p>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;">On this device or browser you link to the shop automatically. Connecting to the shop owner's <b>separate phone</b> needs one quick QR scan.</p>
 
       <div class="qr-box">
         <span class="stamp off" id="shopConnStamp"><i class="fa-solid fa-circle dot" aria-hidden="true"></i>CONNECTING</span>
@@ -782,19 +691,25 @@ button{cursor:pointer;}
         <div class="live-code" id="shopScreenDate" style="color:var(--mango-dark);font-size:22px;">-</div>
       </div>
 
+      <div class="card" style="margin-bottom:16px;">
+        <button class="btn btn-block" id="btnScanToConnect" style="background:var(--blueberry);color:#fff;">
+          <i class="fa-solid fa-camera" aria-hidden="true"></i>&nbsp; Scan Shop's Connect QR
+        </button>
+      </div>
+
       <div class="card">
-        <h3 style="margin:0 0 8px;font-size:15px;"><i class="fa-solid fa-circle-info" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; How auto-connect works</h3>
-        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0;">This app links to the shop automatically in the background, there is nothing to type or scan. If you and the shop are using the same device or browser (for example testing on one laptop), the link is instant. On separate phones over the open internet, this static, no-backend site can sync every post the moment your app opens and while it stays open, and true always-on live sync between two different phones needs a small relay service in a future version.</p>
+        <h3 style="margin:0 0 8px;font-size:15px;"><i class="fa-solid fa-circle-info" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; How cross-device P2P works</h3>
+        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0;">If you and the shop are using the same device or browser (for example testing on one laptop), the link is instant with nothing to scan. On separate phones, a real direct WebRTC connection is opened after a one-time QR scan - this is genuine peer-to-peer, not simulated, but on strict mobile-carrier networks a P2P link can occasionally fail to establish; if that happens, reopening the app still shows every post the shop has published.</p>
       </div>
     </section>
 
-    <!-- ---- CHAT LIST ---- -->
+    
     <section id="screen-chatlist" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">Chat</h2>
       <div id="chatListWrap"></div>
     </section>
 
-    <!-- ---- CHAT THREAD ---- -->
+    
     <section id="screen-chatthread" class="screen hidden" style="padding:0;">
       <header class="topbar" style="position:sticky;top:0;">
         <div class="brand">
@@ -817,13 +732,20 @@ button{cursor:pointer;}
       </div>
     </section>
 
-    <!-- ---- ACTIVITY (customer) ---- -->
+    
     <section id="screen-activity" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">Activity</h2>
       <div id="activityList"></div>
     </section>
 
-    <!-- ---- PROFILE ---- -->
+    
+    <section id="screen-customers" class="screen hidden">
+      <h2 class="section-title display" style="margin-bottom:4px;">Customers</h2>
+      <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 14px;">Everyone who has ever connected to this shop from this device, whether same-device auto-connect or a cross-device QR connect. This list lives on this owner device only.</p>
+      <div id="adminCustomerList"></div>
+    </section>
+
+    
     <section id="screen-profile" class="screen hidden">
       <div class="profile-hero">
         <div class="profile-avatar" id="profileAvatar">
@@ -862,7 +784,7 @@ button{cursor:pointer;}
       <p class="footer-note">Radha Raman Foodshop<br>Version 1 • P2P Prototype</p>
     </section>
 
-    <!-- ---- Bottom Nav (customer) ---- -->
+    
     <nav class="bottom-nav" id="navCustomer" aria-label="Primary">
       <button class="nav-item active" data-screen="home" aria-current="page">
         <i class="fa-solid fa-house" aria-hidden="true"></i>
@@ -886,7 +808,7 @@ button{cursor:pointer;}
       </button>
     </nav>
 
-    <!-- ---- Bottom Nav (owner) ---- -->
+    
     <nav class="bottom-nav hidden" id="navOwner" aria-label="Primary">
       <button class="nav-item active" data-screen="home" aria-current="page">
         <i class="fa-solid fa-house" aria-hidden="true"></i>
@@ -904,82 +826,71 @@ button{cursor:pointer;}
         <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
         Chat
       </button>
+      <button class="nav-item" data-screen="customers">
+        <i class="fa-solid fa-users" aria-hidden="true"></i>
+        Customers
+      </button>
       <button class="nav-item" data-screen="profile">
         <i class="fa-solid fa-user" aria-hidden="true"></i>
         Profile
       </button>
     </nav>
 
-  </div><!-- /mainApp -->
-</div><!-- /app -->
+  </div>
+</div>
 
-<!-- ================= MODALS ================= -->
+
 <div id="modalHost"></div>
 
 <script>
-/* =====================================================================
-   Radha Raman Foodshop - Version 1 application logic
-   Sections: CONFIG, STATE, UTIL, DATE/TIME, DATABASE, AUTHENTICATION,
-   POSTS, COMMENTS, REACTIONS, CHAT, P2P/WEBRTC, QR, PWA INSTALL,
-   UI, EVENT HANDLERS, INITIALIZATION
-   ===================================================================== */
-
-/* ===================== CONFIG ===================== */
 const CONFIG = {
   SHOP_NAME: "Radha Raman Foodshop",
   OWNER_NAME: "Rupak Ghosh",
   SHOP_PHONE: "9387361589",
   OWNER_USERNAME: "admin",
-  // SECURITY NOTE (Version 1 prototype only):
-  // Hard-coded credentials are NOT secure authentication. Anyone who
-  // views this file's source can read the password below. This is
-  // acceptable ONLY for a static, no-backend V1 prototype demo.
-  // Before any real production use, replace this with a proper
-  // authentication service (e.g. a backend + hashed passwords + real
-  // sessions/tokens). Do not ship hard-coded secrets to production.
   OWNER_PASSWORD: "rupak123",
-  // Configure this to the deployed GitHub Pages URL once known.
-  // Example: "https://username.github.io/radharaman-foodshop/"
   APP_URL: "YOUR_GITHUB_PAGES_URL",
   APP_VERSION: "1.0",
-  MAX_IMAGE_DIM: 1280,          // px, longest side after client-side resize
-  MAX_IMAGE_BYTES: 900 * 1024,  // warn above ~900KB post-compression
+  MAX_IMAGE_DIM: 1280,
+  MAX_IMAGE_BYTES: 900 * 1024,
   IMAGE_JPEG_QUALITY: 0.78,
   DB_NAME: "radharaman_db",
-  DB_VERSION: 1,
-  STORES: ["posts", "comments", "reactions", "messages", "sessions", "peers"],
-  STUN_SERVERS: [{ urls: "stun:stun.l.google.com:19302" }]
-  // NOTE: No TURN server is configured (TURN requires paid/hosted
-  // relay infrastructure). Connections across strict/symmetric NATs
-  // (common on some mobile carrier networks) may fail without one.
+  DB_VERSION: 2,
+  STORES: ["posts", "reactions", "messages", "sessions", "peers", "customers"],
+  STUN_SERVERS: [
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:global.stun.twilio.com:3478" }
+  ]
 };
 
-/* ===================== STATE ===================== */
 const STATE = {
-  role: null,            // 'owner' | 'customer' | null
-  customer: null,        // { mobile, name, id }
+  role: null,
+  customer: null,
   currentScreen: "home",
   theme: "light",
   todaySessionCode: null,
   isLive: false,
-  posts: [],              // in-memory cache mirrored from IndexedDB
+  posts: [],
   activeReactionPicker: null,
   activeChatPeerId: null,
   db: null,
-  bc: null,               // BroadcastChannel
+  bc: null,
   deferredInstallPrompt: null,
-  peers: {},              // peerId -> { conn, dc, name, status }
-  seenEventIds: new Set() // for de-duplicating synced events
+  peers: {},
+  seenEventIds: new Set(),
+  pendingConnect: null,
+  scanStream: null
 };
 
-/* ===================== UTIL ===================== */
+
 function $(sel, root) { return (root || document).querySelector(sel); }
 function $all(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
 function uid(prefix) {
   return (prefix || "id") + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
 }
-// Escape any untrusted text before inserting into the DOM as HTML.
-// Used everywhere we render captions, comments, chat text, names.
+
+
 function escapeHTML(str) {
   if (str === null || str === undefined) return "";
   return String(str)
@@ -989,8 +900,8 @@ function escapeHTML(str) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-// Strips anything that isn't plain text intent; extra layer beyond
-// escaping, mainly to strip control chars from pasted content.
+
+
 function sanitizeText(str, maxLen) {
   if (!str) return "";
   let s = String(str).replace(/[\u0000-\u001F\u007F]/g, "").trim();
@@ -1009,10 +920,10 @@ function validateMobile(v) {
   return /^[6-9]\d{9}$/.test(v);
 }
 
-/* ===================== DATE / TIME ===================== */
-// All session codes are generated from the LOCAL device date/time -
-// never hard-coded - per the requirement that DDMMYYYY must be
-// computed automatically.
+
+
+
+
 function pad2(n) { return String(n).padStart(2, "0"); }
 
 function getTodaySessionCode(d) {
@@ -1041,8 +952,8 @@ function relativeOrTime(iso) {
   if (hrs < 24) return hrs + "h ago";
   return formatDisplayDate(d) + " " + formatDisplayTime(d);
 }
-// Watches for local midnight rollover so the session code regenerates
-// automatically without deleting any existing posts/data.
+
+
 function watchForDayChange() {
   setInterval(() => {
     const fresh = getTodaySessionCode();
@@ -1052,22 +963,16 @@ function watchForDayChange() {
       localStorage.setItem("rr_session_code_date", formatDisplayDate());
       renderSessionCodeEverywhere();
       toast("A new shop day has started");
-      // The auto-connect channel name is derived from the day, so it
-      // must be rebuilt for the new day - existing posts/data are
-      // preserved, only the live signaling channel restarts.
+      
+      
+      
       closeAllPeerConnections();
       if (STATE.role) startAutoConnect();
     }
   }, 30000);
 }
 
-/* ===================== DATABASE (IndexedDB + localStorage) =====================
-   localStorage: login state, customer profile, settings, today's
-   session code, small metadata/preferences - all local-device-only.
-   IndexedDB: posts (incl. images), comments, reactions, chat
-   messages, sessions, peers - larger data, also local-device-only.
-   Neither technology synchronizes across devices by itself; cross-
-   device sync only happens via the WebRTC layer below. */
+
 function openDB() {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
@@ -1077,9 +982,8 @@ function openDB() {
         const s = db.createObjectStore("posts", { keyPath: "postId" });
         s.createIndex("createdAt", "createdAt");
       }
-      if (!db.objectStoreNames.contains("comments")) {
-        const s = db.createObjectStore("comments", { keyPath: "commentId" });
-        s.createIndex("postId", "postId");
+      if (db.objectStoreNames.contains("comments")) {
+        db.deleteObjectStore("comments");
       }
       if (!db.objectStoreNames.contains("reactions")) {
         const s = db.createObjectStore("reactions", { keyPath: "reactionId" });
@@ -1094,6 +998,10 @@ function openDB() {
       }
       if (!db.objectStoreNames.contains("peers")) {
         db.createObjectStore("peers", { keyPath: "peerId" });
+      }
+      if (!db.objectStoreNames.contains("customers")) {
+        const s = db.createObjectStore("customers", { keyPath: "id" });
+        s.createIndex("mobile", "mobile");
       }
     };
     req.onsuccess = (e) => resolve(e.target.result);
@@ -1133,7 +1041,7 @@ function dbGetByIndex(store, index, value) {
   });
 }
 
-/* ===================== AUTHENTICATION ===================== */
+
 function restoreSession() {
   const role = localStorage.getItem("rr_role");
   if (role === "owner") {
@@ -1155,8 +1063,8 @@ function restoreSession() {
   }
 }
 function loginOwner(username, password) {
-  // Hard-coded credential check - see CONFIG comment: not secure,
-  // Version 1 prototype only.
+  
+  
   if (username === CONFIG.OWNER_USERNAME && password === CONFIG.OWNER_PASSWORD) {
     STATE.role = "owner";
     localStorage.setItem("rr_role", "owner");
@@ -1182,10 +1090,10 @@ function loginCustomer(mobile, name) {
 function logout() {
   closeAllPeerConnections();
   localStorage.removeItem("rr_role");
-  // Customer profile (rr_customer) is intentionally kept so a
-  // returning guest doesn't have to retype their number - mirrors
-  // "remain logged in locally unless they log out" for re-entry ease,
-  // but role is cleared so they land back on the entry screen.
+  
+  
+  
+  
   STATE.role = null;
   STATE.customer = null;
   $("#mainApp").classList.add("hidden");
@@ -1193,15 +1101,15 @@ function logout() {
   toast("Logged out");
 }
 
-/* ===================== POSTS ===================== */
+
 async function loadPostsFromDB() {
   const all = await dbGetAll("posts");
   all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   STATE.posts = all;
   return all;
 }
-// Client-side image compression/resize before storing - keeps
-// IndexedDB usage reasonable since this is a local-storage-only app.
+
+
 function compressImage(file) {
   return new Promise((resolve, reject) => {
     if (!file.type || !file.type.startsWith("image/")) {
@@ -1252,8 +1160,8 @@ async function createPost({ imageData, caption, category }) {
   broadcastToPeers({ type: "post:new", payload: post, eventId: uid("evt") });
   return post;
 }
-// Prevents duplicate posts (e.g. arriving both via BroadcastChannel
-// and a P2P DataChannel) by keying on postId.
+
+
 async function ingestRemotePost(post) {
   const existing = await dbGet("posts", post.postId);
   if (existing) return false;
@@ -1262,15 +1170,13 @@ async function ingestRemotePost(post) {
   renderFeed();
   return true;
 }
-// Owner-only: permanently removes a post and everything attached to
-// it (comments, reactions) from this device, then tells connected
-// customers to remove it from their feeds too, so a deleted post
-// doesn't linger anywhere it already synced to.
+
+
+
+
 async function deletePost(postId) {
   if (STATE.role !== "owner") return false;
   await dbDelete("posts", postId);
-  const relatedComments = await dbGetByIndex("comments", "postId", postId);
-  for (const c of relatedComments) await dbDelete("comments", c.commentId);
   const relatedReactions = await dbGetByIndex("reactions", "postId", postId);
   for (const r of relatedReactions) await dbDelete("reactions", r.reactionId);
   await loadPostsFromDB();
@@ -1283,8 +1189,6 @@ async function ingestRemotePostDeletion(postId) {
   const existing = await dbGet("posts", postId);
   if (!existing) return false;
   await dbDelete("posts", postId);
-  const relatedComments = await dbGetByIndex("comments", "postId", postId);
-  for (const c of relatedComments) await dbDelete("comments", c.commentId);
   const relatedReactions = await dbGetByIndex("reactions", "postId", postId);
   for (const r of relatedReactions) await dbDelete("reactions", r.reactionId);
   await loadPostsFromDB();
@@ -1292,39 +1196,7 @@ async function ingestRemotePostDeletion(postId) {
   return true;
 }
 
-/* ===================== COMMENTS ===================== */
-async function addComment(postId, text) {
-  const clean = sanitizeText(text, 300);
-  if (!clean) return null;
-  const author = STATE.role === "owner" ? CONFIG.OWNER_NAME : (STATE.customer ? STATE.customer.name : "Guest");
-  const comment = {
-    commentId: uid("cmt"),
-    postId,
-    author: sanitizeText(author, 40) || "Guest",
-    text: clean,
-    createdAt: new Date().toISOString(),
-    isOwner: STATE.role === "owner"
-  };
-  await dbPut("comments", comment);
-  renderFeed();
-  broadcastLocal({ type: "comment:new", payload: comment });
-  broadcastToPeers({ type: "comment:new", payload: comment, eventId: uid("evt") });
-  return comment;
-}
-async function ingestRemoteComment(comment) {
-  const existing = await dbGet("comments", comment.commentId);
-  if (existing) return false;
-  await dbPut("comments", comment);
-  renderFeed();
-  return true;
-}
-async function getCommentsForPost(postId) {
-  const list = await dbGetByIndex("comments", "postId", postId);
-  list.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  return list;
-}
 
-/* ===================== REACTIONS ===================== */
 const REACTIONS = {
   like:      { emoji: "\u2764\ufe0f", color: "var(--watermelon)", label: "Like" },
   thumbsup:  { emoji: "\ud83d\udc4d", color: "var(--blueberry)",  label: "Thumbs up" },
@@ -1339,7 +1211,7 @@ async function toggleReaction(postId, type) {
   const mine = all.find(r => r.actorId === actorId);
   let reaction;
   if (mine && mine.type === type) {
-    // toggle off
+    
     await dbDelete("reactions", mine.reactionId);
     renderFeed();
     broadcastLocal({ type: "reaction:remove", payload: { postId, actorId } });
@@ -1370,7 +1242,7 @@ async function ingestRemoteReaction(reaction) {
   const existing = await dbGetByIndex("reactions", "postId", reaction.postId);
   const dupe = existing.find(r => r.actorId === reaction.actorId && r.reactionId === reaction.reactionId);
   if (dupe) return false;
-  // Replace any existing reaction by same actor on same post
+  
   const sameActor = existing.find(r => r.actorId === reaction.actorId);
   if (sameActor) await dbDelete("reactions", sameActor.reactionId);
   await dbPut("reactions", reaction);
@@ -1386,18 +1258,10 @@ async function getReactionsForPost(postId) {
   return dbGetByIndex("reactions", "postId", postId);
 }
 
-/* ===================== CHAT =====================
-   Local chat history is stored in IndexedDB ("messages" store) per
-   thread. Live delivery to a different device only happens while a
-   WebRTC DataChannel is open to that specific peer (see P2P section).
-   Messages composed while offline/disconnected are saved locally and
-   marked "queued" - they are sent automatically if/when a connection
-   to that peer opens. This app does NOT relay messages through any
-   server, so a message can only be delivered once both sides have an
-   active P2P link (directly, or by reconnecting later). */
+
 function threadIdFor(peerId) {
-  // Deterministic thread id so both sides can reference the same
-  // thread even though they each generate ids independently.
+  
+  
   return "thread_" + peerId;
 }
 async function sendChatMessage(peerId, text, peerDisplayName) {
@@ -1449,40 +1313,7 @@ async function getAllThreadsSummary() {
   return Object.values(byPeer).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
-/* ===================== P2P / WEBRTC =====================
-   AUTO-CONNECT ARCHITECTURE (no codes shown or typed by anyone):
-   - There is no manual offer/answer code, no QR pairing step and no
-     "connect" button for the customer. Instead, every app instance
-     announces itself automatically on a shared, per-day signaling
-     channel the moment it opens, and the owner's app automatically
-     answers every announcement it hears - all real WebRTC, all
-     driven by code, zero user interaction.
-   - The per-day channel name is derived automatically from today's
-     local date (see CONFIG note in DATE/TIME) so different days
-     don't cross-talk; it is never displayed to the user as something
-     they need to enter.
-   - The signaling transport for this automatic handshake is the
-     BroadcastChannel API. BroadcastChannel is scoped to the SAME
-     browser/device (same-origin contexts on one machine) - it is a
-     real, standard web API, and using it for signaling is genuine,
-     not simulated. It lets two tabs/windows on one device negotiate
-     and open a true RTCPeerConnection DataChannel fully automatically.
-   - IMPORTANT HONESTY NOTE: BroadcastChannel cannot reach a different
-     physical phone or computer - no browser API can, without some
-     server or relay in between, and this is a static, backend-free
-     GitHub Pages site. So on two separate devices, the automatic
-     handshake below will not complete (there is nothing for it to
-     discover across the network), and the app is written to make
-     that visible as "Connecting automatically..." rather than fake a
-     connected state. What still works fully offline-first on a
-     second device: the customer's own local feed, likes, comments
-     and previously-synced posts all continue to work from IndexedDB,
-     and any post created by the owner is available the moment a
-     customer's app is opened again after the owner published it,
-     because the owner "activity" is stored, not just streamed.
-   - A future Version 2 can add a small always-on signaling relay so
-     this exact same automatic handshake logic works across the
-     open internet without changing the UI at all. */
+
 
 function createPeerConnection(peerId, isInitiator) {
   const pc = new RTCPeerConnection({ iceServers: CONFIG.STUN_SERVERS });
@@ -1501,19 +1332,24 @@ function createPeerConnection(peerId, isInitiator) {
       renderPeerLists();
     }
   };
-  // Note: onicecandidate is assigned by the caller (ownerAutoOffer /
-  // customerAutoAnswer) right after this returns, since each side
-  // needs to address the candidate message to a different peer id.
+  
+  
+  
 
   function attachChannel(dc) {
     entry.dc = dc;
-    dc.onopen = () => { entry.status = "connected"; renderPeerLists(); toast("Connected automatically"); };
+    dc.onopen = () => {
+      entry.status = "connected";
+      renderPeerLists();
+      toast("Connected to " + entry.name);
+      sendMyProfileTo(peerId);
+    };
     dc.onclose = () => { entry.status = "closed"; renderPeerLists(); };
     dc.onmessage = (ev) => {
       try {
         const msg = JSON.parse(ev.data);
         handlePeerMessage(peerId, msg);
-      } catch (e) { /* ignore malformed payloads */ }
+      } catch (e) {  }
     };
   }
 
@@ -1527,13 +1363,7 @@ function createPeerConnection(peerId, isInitiator) {
   return { pc, entry };
 }
 
-/* ---- Automatic signaling over BroadcastChannel ----
-   This is the piece that removes all manual codes: instead of a
-   human copying an offer/answer blob, the two RTCPeerConnections
-   exchange that same SDP/ICE data as ordinary BroadcastChannel
-   messages, automatically, the instant both tabs are open. The data
-   exchanged is identical in substance to a "connect code" - only the
-   delivery is automatic instead of copy/paste. */
+
 function signalSend(msg) {
   if (!STATE.signalChannel) return;
   try { STATE.signalChannel.postMessage(Object.assign({ session: STATE.todaySessionCode }, msg)); } catch (e) {}
@@ -1541,37 +1371,37 @@ function signalSend(msg) {
 async function startAutoConnect() {
   if (!("BroadcastChannel" in window)) return;
   STATE._localPeerId = STATE._localPeerId || uid("peer");
-  const channelName = "rr_signal_" + STATE.todaySessionCode; // derived automatically from today's date, never shown to the user as a code to type
+  const channelName = "rr_signal_" + STATE.todaySessionCode; 
   STATE.signalChannel = new BroadcastChannel(channelName);
   STATE.signalChannel.onmessage = async (ev) => {
     const data = ev.data;
     if (!data || data.session !== STATE.todaySessionCode) return;
     try {
-      // Step 1: a customer's tab announces itself the moment it opens.
+      
       if (data.kind === "announce" && STATE.role === "owner" && data.from !== STATE._localPeerId) {
         await ownerAutoOffer(data.from, data.name);
       }
-      // Step 2: the customer receives the owner's automatic offer and
-      // automatically answers it, no user action.
+      
+      
       else if (data.kind === "offer" && data.to === STATE._localPeerId) {
         await customerAutoAnswer(data.from, data.ownerName, data.sdp);
       }
-      // Step 3: the owner receives the customer's automatic answer,
-      // completing the handshake.
+      
+      
       else if (data.kind === "answer" && data.to === STATE._localPeerId) {
         const entry = STATE.peers[data.from];
         if (entry && entry.conn.signalingState !== "stable") { await entry.conn.setRemoteDescription(data.sdp); }
       }
-      // ICE candidates flow automatically alongside the above.
+      
       else if (data.kind === "candidate" && data.to === STATE._localPeerId && STATE.peers[data.from]) {
         try { await STATE.peers[data.from].conn.addIceCandidate(data.candidate); } catch (e) {}
       }
-    } catch (e) { /* ignore malformed/unrelated signaling frames */ }
+    } catch (e) {  }
   };
   if (STATE.role === "customer") {
-    // Announce presence automatically, no button, no code.
+    
     signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
-    // Re-announce periodically in case the owner's tab opens later today.
+    
     STATE._announceTimer = setInterval(() => {
       if (connectedPeerCount() === 0) {
         signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
@@ -1579,10 +1409,10 @@ async function startAutoConnect() {
     }, 8000);
   }
 }
-// OWNER SIDE: automatically creates and sends a real SDP offer the
-// instant a customer's announcement is heard - no paste/scan step.
+
+
 async function ownerAutoOffer(customerPeerId, customerName) {
-  if (STATE.peers[customerPeerId]) return; // already connecting/connected
+  if (STATE.peers[customerPeerId]) return; 
   const { pc, entry } = createPeerConnection(customerPeerId, true);
   entry.name = sanitizeText(customerName, 40) || "Customer";
   pc.onicecandidate = (ev) => {
@@ -1595,9 +1425,9 @@ async function ownerAutoOffer(customerPeerId, customerName) {
   renderPeerLists();
   renderChatList();
 }
-// CUSTOMER SIDE: automatically answers the owner's offer, no user
-// action - triggered purely by hearing the offer message addressed
-// to this tab's own peer id.
+
+
+
 async function customerAutoAnswer(ownerPeerId, ownerName, offerSdp) {
   if (STATE.peers[ownerPeerId]) return;
   const { pc, entry } = createPeerConnection(ownerPeerId, false);
@@ -1647,20 +1477,259 @@ function handlePeerMessage(peerId, msg) {
   switch (msg.type) {
     case "post:new": ingestRemotePost(msg.payload); break;
     case "post:delete": ingestRemotePostDeletion(msg.payload.postId); break;
-    case "comment:new": ingestRemoteComment(msg.payload); break;
     case "reaction:new": ingestRemoteReaction(msg.payload); break;
     case "reaction:remove": ingestRemoteReactionRemoval(msg.payload.postId, msg.payload.actorId); break;
     case "chat:message": ingestRemoteChatMessage(Object.assign({}, msg.payload, { peerId })); break;
     case "sync:request": handleSyncRequest(peerId); break;
+    case "customer:profile": ingestCustomerProfile(peerId, msg.payload); break;
     default: break;
   }
 }
-// When a new peer connects, the owner proactively pushes existing
-// posts so the customer's feed fills in (real, not simulated, sync).
+
+
 async function handleSyncRequest(peerId) {
   if (STATE.role !== "owner") return;
   const posts = await dbGetAll("posts");
   posts.forEach(p => sendToPeer(peerId, { type: "post:new", payload: p, eventId: uid("evt") }));
+}
+// Owner-only: persists every customer profile it has ever seen to a
+// dedicated, permanent "customers" store, so the shop owner has a
+// standing record of everyone who has connected - not just whoever
+// happens to be connected right now. This is real data that stays
+// on the owner's own device (there is still no shared server), so
+// it reflects every customer this specific owner device has ever
+// synced with, across all past sessions.
+async function ingestCustomerProfile(peerId, profile) {
+  if (STATE.role !== "owner" || !profile || !profile.id) return;
+  const existing = await dbGet("customers", profile.id);
+  const record = {
+    id: profile.id,
+    mobile: sanitizeText(profile.mobile, 20),
+    name: sanitizeText(profile.name, 40) || "Guest",
+    firstSeenAt: (existing && existing.firstSeenAt) || profile.joinedAt || new Date().toISOString(),
+    lastSeenAt: new Date().toISOString(),
+    peerId
+  };
+  await dbPut("customers", record);
+  renderAdminCustomers();
+}
+// Sent by a customer immediately once a data channel opens to any
+// peer, so the shop owner's device can record who connected.
+function sendMyProfileTo(peerId) {
+  if (STATE.role !== "customer" || !STATE.customer) return;
+  sendToPeer(peerId, { type: "customer:profile", payload: STATE.customer });
+}
+
+/* ===================== CROSS-DEVICE P2P (manual QR/text signaling) =====================
+   Two different physical phones cannot discover each other over
+   BroadcastChannel - that only works between tabs on the SAME
+   device. To open a REAL WebRTC connection between two separate
+   devices without any backend server, one side's connection details
+   (an SDP offer, after ICE gathering completes) must reach the other
+   side through some out-of-band channel. Here that channel is a QR
+   code (scanned with the camera) with a manual copy/share fallback
+   for when scanning isn't available. This is a genuine, standard
+   WebRTC handshake - only the delivery of the offer/answer blob is
+   manual instead of automatic, exactly as manual signaling always
+   works for serverless WebRTC apps. Once connected, all sync (posts,
+   reactions, chat, customer profile) flows over the real P2P
+   DataChannel, live, with no server involved. */
+
+function waitForIceGatheringComplete(pc, timeoutMs) {
+  if (pc.iceGatheringState === "complete") return Promise.resolve();
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => { if (done) return; done = true; pc.removeEventListener("icegatheringstatechange", check); resolve(); };
+    function check() { if (pc.iceGatheringState === "complete") finish(); }
+    pc.addEventListener("icegatheringstatechange", check);
+    setTimeout(finish, timeoutMs || 4000);
+  });
+}
+// Packs an RTCSessionDescription down to the minimum needed to
+// reconstruct it, so the resulting text/QR payload is as small as
+// possible (full SDP text can run several KB with all ICE
+// candidates; this keeps only what's required).
+function packDescription(desc) {
+  return { t: desc.type, s: desc.sdp };
+}
+function encodeConnectBlob(obj) {
+  const json = JSON.stringify(obj);
+  return "RRCONNECT1:" + btoa(unescape(encodeURIComponent(json)));
+}
+function decodeConnectBlob(text) {
+  const clean = String(text || "").trim();
+  const prefix = "RRCONNECT1:";
+  if (!clean.startsWith(prefix)) throw new Error("Not a valid connect code.");
+  const json = decodeURIComponent(escape(atob(clean.slice(prefix.length))));
+  return JSON.parse(json);
+}
+// OWNER SIDE: generates a one-time connect offer for a customer on a
+// separate device, shown as a QR code (and as copyable/shareable
+// text for when scanning isn't convenient).
+async function startDeviceConnect() {
+  const peerId = uid("dev");
+  const { pc, entry } = createPeerConnection(peerId, true);
+  entry.name = "Customer";
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await waitForIceGatheringComplete(pc, 4000);
+  const blob = encodeConnectBlob({ role: "offer", peerId, ownerName: CONFIG.SHOP_NAME, desc: packDescription(pc.localDescription) });
+  const fitsQr = QR.canEncode(blob);
+  STATE.pendingConnect = { peerId, pc };
+  openModal("Connect a Customer's Device", `
+    <div style="text-align:center;">
+      <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">${fitsQr ? "Ask the customer to open <b>Shop &gt; Scan Shop's Connect QR</b> on their own phone and scan this code." : "This connect code is a bit long for a QR code on this network. Share or copy it to the customer instead - they'll paste it into <b>Shop &gt; Scan Shop's Connect QR</b>."} This opens a real direct connection between your two devices.</p>
+      ${fitsQr ? `<div id="deviceConnectQrWrap"><canvas id="deviceConnectQrCanvas" role="img" aria-label="Connect QR code"></canvas></div>` : ""}
+      <p style="font-size:11.5px;color:var(--ink-soft);margin:10px 0 0;">${fitsQr ? "Can't scan right now? Share or copy the connect code instead." : ""}</p>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn btn-outline btn-block" id="btnCopyConnectCode" type="button">Copy Code</button>
+        <button class="btn btn-outline btn-block" id="btnShareConnectCode" type="button">Share</button>
+      </div>
+      <p id="deviceConnectStatus" style="font-size:12px;color:var(--ink-soft);margin-top:14px;">Waiting for the customer to connect...</p>
+      <button class="btn btn-block" id="btnScanCustomerAnswer" type="button" style="margin-top:10px;background:var(--kiwi);color:#fff;">
+        <i class="fa-solid fa-camera" aria-hidden="true"></i>&nbsp; Scan/Paste Customer's Reply Code
+      </button>
+    </div>`, (body) => {
+    if (fitsQr) QR.renderToCanvas(body.querySelector("#deviceConnectQrCanvas"), blob, 240);
+    body.querySelector("#btnCopyConnectCode").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(blob); toast("Connect code copied"); }
+      catch (e) { toast("Couldn't copy - long-press the QR image instead."); }
+    });
+    body.querySelector("#btnShareConnectCode").addEventListener("click", async () => {
+      if (navigator.share) { try { await navigator.share({ title: CONFIG.SHOP_NAME + " connect code", text: blob }); } catch (e) {} }
+      else { toast("Sharing isn't available in this browser - use Copy Code instead."); }
+    });
+    body.querySelector("#btnScanCustomerAnswer").addEventListener("click", () => {
+      openQrScanner((code) => { finishDeviceConnectWithAnswer(code); }, "Scan the Customer's Reply Code");
+    });
+  });
+  pc.onconnectionstatechange = (() => {
+    const original = pc.onconnectionstatechange;
+    return () => {
+      if (original) original();
+      const statusEl = $("#deviceConnectStatus");
+      if (statusEl && pc.connectionState === "connected") {
+        statusEl.textContent = "Connected! You can close this window.";
+      }
+    };
+  })();
+}
+// Owner side, step 2: once the customer scans the offer and shows
+// their own answer QR, the owner scans/pastes that back in to
+// complete the handshake.
+async function finishDeviceConnectWithAnswer(answerBlobText) {
+  if (!STATE.pendingConnect) { toast("Start a new connect from the Live screen first."); return; }
+  try {
+    const parsed = decodeConnectBlob(answerBlobText);
+    if (parsed.role !== "answer" || parsed.peerId !== STATE.pendingConnect.peerId) {
+      toast("That code doesn't match this connect session.");
+      return;
+    }
+    const pc = STATE.pendingConnect.pc;
+    await pc.setRemoteDescription({ type: parsed.desc.t, sdp: parsed.desc.s });
+    closeModal();
+    STATE.pendingConnect = null;
+  } catch (e) {
+    toast("That code could not be read - please try scanning again.");
+  }
+}
+// CUSTOMER SIDE: scans (or pastes) the shop owner's offer QR,
+// creates a real WebRTC answer, and shows it back as a QR/text for
+// the owner to scan in to complete the connection.
+async function connectToDeviceWithOffer(offerBlobText) {
+  try {
+    const parsed = decodeConnectBlob(offerBlobText);
+    if (parsed.role !== "offer") { toast("That doesn't look like a shop connect code."); return; }
+    const { pc, entry } = createPeerConnection(parsed.peerId, false);
+    entry.name = sanitizeText(parsed.ownerName, 40) || CONFIG.SHOP_NAME;
+    await pc.setRemoteDescription({ type: parsed.desc.t, sdp: parsed.desc.s });
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    await waitForIceGatheringComplete(pc, 4000);
+    const answerBlob = encodeConnectBlob({ role: "answer", peerId: parsed.peerId, desc: packDescription(pc.localDescription) });
+    const fitsQr = QR.canEncode(answerBlob);
+    openModal("Show This Back to the Shop", `
+      <div style="text-align:center;">
+        <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">${fitsQr ? "Show this code to the shop owner to scan, or share/copy it to them." : "This reply code is a bit long for a QR on this network - share or copy it to the shop owner instead."} This completes the connection.</p>
+        ${fitsQr ? `<div id="answerQrWrap"><canvas id="answerQrCanvas" role="img" aria-label="Answer QR code"></canvas></div>` : ""}
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-outline btn-block" id="btnCopyAnswerCode" type="button">Copy Code</button>
+          <button class="btn btn-outline btn-block" id="btnShareAnswerCode" type="button">Share</button>
+        </div>
+      </div>`, (body) => {
+      if (fitsQr) QR.renderToCanvas(body.querySelector("#answerQrCanvas"), answerBlob, 240);
+      body.querySelector("#btnCopyAnswerCode").addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText(answerBlob); toast("Answer code copied"); }
+        catch (e) { toast("Couldn't copy - long-press the QR image instead."); }
+      });
+      body.querySelector("#btnShareAnswerCode").addEventListener("click", async () => {
+        if (navigator.share) { try { await navigator.share({ title: "Connect answer", text: answerBlob }); } catch (e) {} }
+        else { toast("Sharing isn't available in this browser - use Copy Code instead."); }
+      });
+    });
+    renderShopConnectScreen();
+  } catch (e) {
+    toast("That code could not be read - please try scanning again.");
+  }
+}
+// Native camera-based QR scanning using BarcodeDetector where
+// available (Chrome/Edge/Android). Falls back to a manual paste box
+// on browsers without it (e.g. some iOS Safari versions), so scanning
+// a device connect code always has a working path either way.
+async function openQrScanner(onResult, titleText) {
+  const hasDetector = "BarcodeDetector" in window;
+  openModal(titleText || "Scan QR Code", `
+    <div style="text-align:center;">
+      ${hasDetector ? `
+        <video id="qrScanVideo" playsinline autoplay muted style="width:100%;border-radius:12px;background:#000;"></video>
+        <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;">Point your camera at the QR code.</p>
+      ` : `<p style="font-size:13px;color:var(--ink-soft);margin-top:0;">Live camera scanning isn't supported in this browser. Paste the connect code you were sent instead.</p>`}
+      <div style="margin-top:12px;">
+        <textarea id="qrManualInput" rows="3" placeholder="Or paste the connect code here" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;font-size:13px;font-family:monospace;background:var(--paper);color:var(--ink);"></textarea>
+        <button class="btn btn-block" id="btnSubmitManualCode" type="button" style="margin-top:8px;">Use This Code</button>
+      </div>
+    </div>`, async (body) => {
+    body.querySelector("#btnSubmitManualCode").addEventListener("click", () => {
+      const val = body.querySelector("#qrManualInput").value.trim();
+      if (!val) { toast("Paste a connect code first."); return; }
+      closeModal();
+      stopQrScanStream();
+      onResult(val);
+    });
+    if (hasDetector) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        STATE.scanStream = stream;
+        const video = body.querySelector("#qrScanVideo");
+        video.srcObject = stream;
+        const detector = new BarcodeDetector({ formats: ["qr_code"] });
+        let stopped = false;
+        (async function scanLoop() {
+          while (!stopped && STATE.scanStream === stream) {
+            try {
+              const codes = await detector.detect(video);
+              if (codes && codes.length) {
+                stopped = true;
+                closeModal();
+                stopQrScanStream();
+                onResult(codes[0].rawValue);
+                return;
+              }
+            } catch (e) {}
+            await new Promise(r => setTimeout(r, 350));
+          }
+        })();
+      } catch (e) {
+        toast("Camera access wasn't available - paste the code instead.");
+      }
+    }
+  });
+}
+function stopQrScanStream() {
+  if (STATE.scanStream) {
+    try { STATE.scanStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    STATE.scanStream = null;
+  }
 }
 function closeAllPeerConnections() {
   Object.values(STATE.peers).forEach(entry => {
@@ -1669,16 +1738,14 @@ function closeAllPeerConnections() {
   STATE.peers = {};
   if (STATE._announceTimer) { clearInterval(STATE._announceTimer); STATE._announceTimer = null; }
   if (STATE.signalChannel) { try { STATE.signalChannel.close(); } catch (e) {} STATE.signalChannel = null; }
+  STATE.pendingConnect = null;
+  stopQrScanStream();
 }
 function connectedPeerCount() {
   return Object.values(STATE.peers).filter(p => p.status === "connected").length;
 }
 
-/* ---- BroadcastChannel: same-device/same-browser instant sync ----
-   Useful when the owner and a customer are both open in different
-   tabs of the SAME browser (e.g. for local testing/demo). This does
-   NOT reach other phones/devices - that requires the WebRTC layer
-   above. */
+
 function initBroadcastChannel() {
   if (!("BroadcastChannel" in window)) return;
   STATE.bc = new BroadcastChannel("radharaman_local");
@@ -1687,7 +1754,6 @@ function initBroadcastChannel() {
     if (!msg || !msg.type) return;
     if (msg.type === "post:new") ingestRemotePost(msg.payload);
     if (msg.type === "post:delete") ingestRemotePostDeletion(msg.payload.postId);
-    if (msg.type === "comment:new") ingestRemoteComment(msg.payload);
     if (msg.type === "reaction:new") ingestRemoteReaction(msg.payload);
     if (msg.type === "reaction:remove") ingestRemoteReactionRemoval(msg.payload.postId, msg.payload.actorId);
   };
@@ -1696,15 +1762,10 @@ function broadcastLocal(msg) {
   if (STATE.bc) { try { STATE.bc.postMessage(msg); } catch (e) {} }
 }
 
-/* ===================== QR =====================
-   Lightweight, dependency-free QR code generator (isolated below in
-   the QR namespace so it can be swapped for an external library in a
-   later version without touching the rest of the app). Implements a
-   minimal QR encoder (byte mode, error-correction level L) sufficient
-   for encoding short URLs/text - no network request required. */
+
 const QR = (function () {
-  // Minimal QR Code generator (byte mode). Compact implementation.
-  // Replaceable: swap this whole IIFE for a library import in V2.
+  
+  
   function QR8bitByte(data) { this.data = data; this.mode = 4; this.parsedData = []; for (let i = 0; i < data.length; i++) { let b = data.charCodeAt(i); if (b > 127) { const enc = unescape(encodeURIComponent(data[i])); for (let j = 0; j < enc.length; j++) this.parsedData.push(enc.charCodeAt(j)); } else this.parsedData.push(b); } }
   QR8bitByte.prototype.getLength = function () { return this.parsedData.length; };
   QR8bitByte.prototype.write = function (buffer) { for (let i = 0; i < this.parsedData.length; i++) buffer.put(this.parsedData[i], 8); };
@@ -1723,37 +1784,37 @@ const QR = (function () {
   function Polynomial(num, shift) { let offset = 0; while (offset < num.length && num[offset] === 0) offset++; this.num = new Array(num.length - offset + shift); for (let i = 0; i < num.length - offset; i++) this.num[i] = num[i + offset]; for (let i = 0; i < shift; i++) this.num[num.length - offset + i] = 0; }
   Polynomial.prototype = { get: function (i) { return this.num[i]; }, getLength: function () { return this.num.length; }, multiply: function (e) { const n = new Array(this.getLength() + e.getLength() - 1).fill(0); for (let i = 0; i < this.getLength(); i++) for (let j = 0; j < e.getLength(); j++) n[i + j] ^= gexp(glog(this.get(i)) + glog(e.get(j))); return new Polynomial(n, 0); }, mod: function (e) { if (this.getLength() - e.getLength() < 0) return this; const ratio = glog(this.get(0)) - glog(e.get(0)); const n = this.num.slice(); for (let i = 0; i < e.getLength(); i++) n[i] ^= gexp(glog(e.get(i)) + ratio); return new Polynomial(n, 0).mod(e); } };
   function getErrorCorrectPolynomial(len) { let a = new Polynomial([1], 0); for (let i = 0; i < len; i++) a = a.multiply(new Polynomial([1, gexp(i)], 0)); return a; }
-  // Two distinct QR spec tables for versions 1-10 at EC level L
-  // (ISO/IEC 18004 Annex tables) - these must NOT be the same array:
-  //  - CHAR_CAP: max input characters in byte mode, used only to pick
-  //    a version big enough for the input text.
-  //  - DATA_CODEWORDS: actual data codeword capacity in bytes, used to
-  //    size the bit buffer and Reed-Solomon input. This is a few bytes
-  //    larger than CHAR_CAP because it includes the mode indicator and
-  //    length-field overhead budget.
-  //  - EC_CODEWORDS: error-correction codeword count (Reed-Solomon
-  //    generator polynomial degree).
-  // A previous version of this code used one array for both CHAR_CAP
-  // and DATA_CODEWORDS, and had wrong EC_CODEWORDS values for several
-  // versions. Both mistakes corrupted the Reed-Solomon codewords,
-  // producing a QR that visually looked fine (finder squares etc. are
-  // unaffected) but failed checksum on every real scanner - phone
-  // cameras, Google Lens, dedicated QR apps - so it would never
-  // recognize/open the link even though a person could see "a QR code".
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const CHAR_CAP = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271];
   const DATA_CODEWORDS = [0, 19, 34, 55, 80, 108, 136, 156, 194, 232, 274];
-  // EC codewords PER BLOCK (not total) - versions 6-10 at level L split the
-  // data into multiple interleaved Reed-Solomon blocks per the QR spec.
+  
+  
   const EC_CODEWORDS_PER_BLOCK = [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18];
-  // Block layout at EC level L: [numBlocksGroup1, dataCodewordsPerBlockGroup1, numBlocksGroup2, dataCodewordsPerBlockGroup2]
-  // A previous version of this code treated every version as a single RS
-  // block, which is correct for versions 1-5 but wrong for 6+, where the
-  // spec requires splitting into multiple blocks and interleaving their
-  // codewords. That mismatch produced QR codes whose finder/timing
-  // patterns looked fine but whose data+EC codewords were laid out in the
-  // wrong order, so real scanners (Google Lens, camera apps) could detect
-  // "a QR" but fail to decode any payload of version 6 or larger (108+
-  // chars). Fixed below by properly splitting and interleaving blocks.
+  
+  
+  
+  
+  
+  
+  
+  
+  
   const BLOCK_LAYOUT = [
     null,
     [1, 19, 0, 0], [1, 34, 0, 0], [1, 55, 0, 0], [1, 80, 0, 0], [1, 108, 0, 0],
@@ -1785,13 +1846,13 @@ const QR = (function () {
   };
   QRCode.createData = function (typeNumber, ecLevel, dataList) {
     const buffer = new BitBuffer();
-    // Byte-mode length field is 8 bits for versions 1-9 but 16 bits for
-    // versions 10-26 (and beyond) per the QR spec - versions >= 10 need
-    // more bits since payloads can exceed 255 bytes. A previous version
-    // of this code always used 8 bits, which corrupted the mode/length
-    // header (and therefore every following bit) for any version-10
-    // QR code, causing every mask pattern to fail to decode even though
-    // the finder/timing/format patterns all looked correct.
+    
+    
+    
+    
+    
+    
+    
     for (let i = 0; i < dataList.length; i++) { const data = dataList[i]; buffer.put(data.mode, 4); buffer.put(data.getLength(), typeNumber >= 10 ? 16 : 8); data.write(buffer); }
     const totalDataCount = DATA_CODEWORDS[typeNumber];
     if (buffer.length + 4 <= totalDataCount * 8) buffer.put(0, 4);
@@ -1799,10 +1860,10 @@ const QR = (function () {
     while (true) { if (buffer.length >= totalDataCount * 8) break; buffer.put(0xEC, 8); if (buffer.length >= totalDataCount * 8) break; buffer.put(0x11, 8); }
     return QRCode.createBytes(buffer, typeNumber);
   };
-  // Splits the data codewords into the spec-mandated blocks, runs
-  // Reed-Solomon per block, then interleaves data codewords (round-robin
-  // across blocks) followed by interleaved EC codewords - required for
-  // any version whose block layout has more than one block (6+ at level L).
+  
+  
+  
+  
   QRCode.createBytes = function (buffer, typeNumber) {
     const ecPerBlock = EC_CODEWORDS_PER_BLOCK[typeNumber];
     const [n1, len1, n2, len2] = BLOCK_LAYOUT[typeNumber];
@@ -1862,36 +1923,25 @@ const QR = (function () {
       if (qr.modules[r][c]) ctx.fillRect(offset + c * cell, offset + r * cell, cell, cell);
     }
   }
-  return { renderToCanvas };
+  function maxCapacity() { return CHAR_CAP[10]; }
+  function canEncode(text) { return String(text || "").length <= maxCapacity(); }
+  return { renderToCanvas, maxCapacity, canEncode };
 })();
 function drawSessionQR(canvasEl) {
-  // The QR must always encode a real, absolute URL - any external
-  // scanner (phone camera, Google Lens, a dedicated QR app) only shows
-  // an "Open link" action for genuine URLs, not for plain text/IDs. If
-  // the deployer hasn't set CONFIG.APP_URL yet, fall back to the page's
-  // own live address (window.location.href) so the code is still a
-  // real, scannable, clickable link wherever this file is actually
-  // hosted - instead of an inert placeholder string no scanner can act on.
+  
+  
+  
+  
+  
+  
+  
   const url = (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL")
     ? CONFIG.APP_URL
     : window.location.href.split("#")[0];
   QR.renderToCanvas(canvasEl, url, 220);
 }
 
-/* ===================== PWA INSTALL =====================
-   V2 SPLIT POINT: In a full multi-file PWA, the object below would
-   be saved as manifest.webmanifest and linked via
-   <link rel="manifest" href="manifest.webmanifest">, and the service
-   worker source string further down would be saved as
-   service-worker.js and registered via
-   navigator.serviceWorker.register('service-worker.js').
-   Here, both are constructed at runtime and attached via Blob URLs,
-   which is the practical way to approximate PWA install behavior
-   from a single static HTML file. Actual installability still
-   depends on the browser (e.g. Chrome/Edge on Android support
-   beforeinstallprompt; Safari/iOS does not, and instead needs
-   "Add to Home Screen" from the share sheet - this is a real
-   platform limitation, not something this code can bypass). */
+
 const MANIFEST_OBJ = {
   name: CONFIG.SHOP_NAME,
   short_name: "Radha Raman",
@@ -1915,10 +1965,10 @@ function attachManifest() {
     document.head.appendChild(link);
   } catch (e) { console.warn("Manifest attach failed", e); }
 }
-// V2 SPLIT POINT: service-worker.js source (kept as a string here; a
-// real file in V2). Registered from a Blob URL for offline caching of
-// the app shell - a best-effort approximation since some browsers
-// restrict service workers registered from blob: origins.
+
+
+
+
 const SERVICE_WORKER_SRC = `
 const CACHE = 'radharaman-v1';
 self.addEventListener('install', e => { self.skipWaiting(); });
@@ -1941,9 +1991,9 @@ async function registerServiceWorker() {
     const url = URL.createObjectURL(blob);
     await navigator.serviceWorker.register(url);
   } catch (e) {
-    // Some browsers disallow blob: service worker registration -
-    // fail gracefully; the app still works fully online, and cached
-    // posts/data remain available via IndexedDB regardless.
+    
+    
+    
     console.warn("Service worker registration unavailable in this browser:", e.message);
   }
 }
@@ -1968,7 +2018,7 @@ async function triggerInstall() {
   STATE.deferredInstallPrompt = null;
 }
 
-/* ===================== UI ===================== */
+
 function showScreenGroup(group) {
   ["screen-entry", "screen-customer-login", "screen-owner-login"].forEach(id => $("#" + id).classList.add("hidden"));
   if (group === "entry") $("#screen-entry").classList.remove("hidden");
@@ -1982,7 +2032,7 @@ function enterApp() {
   $("#mainApp").classList.remove("hidden");
   $("#navOwner").classList.toggle("hidden", STATE.role !== "owner");
   $("#navCustomer").classList.toggle("hidden", STATE.role === "owner");
-  ["create", "live"].forEach(s => { if (STATE.role !== "owner") $("#screen-" + s) && $("#screen-" + s).classList.add("hidden"); });
+  ["create", "live", "customers"].forEach(s => { if (STATE.role !== "owner") $("#screen-" + s) && $("#screen-" + s).classList.add("hidden"); });
   navigateTo("home");
   renderProfile();
   renderSessionCodeEverywhere();
@@ -1992,7 +2042,7 @@ function enterApp() {
   registerServiceWorker();
   startAutoConnect();
 }
-const SCREEN_TITLES = { home: "Home feed", create: "New post", live: "Shop session", shop: "Connect to shop", chatlist: "Chats", chatthread: "Chat", activity: "Activity", profile: "Your profile" };
+const SCREEN_TITLES = { home: "Home feed", create: "New post", live: "Shop session", shop: "Connect to shop", chatlist: "Chats", chatthread: "Chat", activity: "Activity", profile: "Your profile", customers: "Customers" };
 function navigateTo(screen) {
   STATE.currentScreen = screen;
   $all(".screen").forEach(s => s.classList.add("hidden"));
@@ -2010,12 +2060,13 @@ function navigateTo(screen) {
   if (screen === "live") renderLivePanel();
   if (screen === "shop") renderShopConnectScreen();
   if (screen === "activity") renderActivity();
+  if (screen === "customers") renderAdminCustomers();
 }
 function renderSessionCodeEverywhere() {
-  // No raw DDMMYYYY code is ever shown to users; the display date
-  // stands in for it everywhere the internal session identifier used
-  // to be printed. STATE.todaySessionCode itself still exists
-  // internally as the auto-connect channel key (see P2P section).
+  
+  
+  
+  
   const dateEls = [$("#ownerSessionDate"), $("#shopScreenDate"), $("#profileSessionDate")];
   dateEls.forEach(el => { if (el) el.textContent = formatDisplayDate(); });
   const chip = $("#feedSessionChip");
@@ -2054,7 +2105,6 @@ async function renderFeed() {
   attachFeedEventListeners();
 }
 async function renderPostCard(post) {
-  const comments = await getCommentsForPost(post.postId);
   const reactions = await getReactionsForPost(post.postId);
   const actorId = STATE.role === "owner" ? "owner" : (STATE.customer ? STATE.customer.id : "guest");
   const myReaction = reactions.find(r => r.actorId === actorId);
@@ -2062,15 +2112,6 @@ async function renderPostCard(post) {
   reactions.forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
   const topTypes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
   const totalReactions = reactions.length;
-  const commentHtml = comments.map(c => `
-    <div class="comment-item">
-      <div class="comment-avatar" aria-hidden="true">${escapeHTML((c.author || "?").slice(0, 1).toUpperCase())}</div>
-      <div class="comment-bubble">
-        <div class="comment-name">${escapeHTML(c.author)}${c.isOwner ? ' <span class="owner-badge">SHOP</span>' : ""}</div>
-        <div class="comment-text">${escapeHTML(c.text)}</div>
-        <div class="comment-time">${escapeHTML(relativeOrTime(c.createdAt))}</div>
-      </div>
-    </div>`).join("");
   const isOwnerViewer = STATE.role === "owner";
   return `
   <article class="post-card" data-post-id="${escapeHTML(post.postId)}">
@@ -2099,10 +2140,6 @@ async function renderPostCard(post) {
           ${myReaction ? `<span aria-hidden="true">${REACTIONS[myReaction.type].emoji}</span>` : `<i class="fa-regular fa-heart" aria-hidden="true"></i>`} ${myReaction ? REACTIONS[myReaction.type].label : "Like"}
         </button>
       </div>
-      <button class="action-btn" data-action="comment-focus" aria-label="Comment on this post">
-        <i class="fa-regular fa-comment" aria-hidden="true"></i>
-        ${comments.length > 0 ? comments.length : "Comment"}
-      </button>
       <a class="action-btn" href="tel:${CONFIG.SHOP_PHONE}" aria-label="Call the shop">
         <i class="fa-solid fa-phone" aria-hidden="true"></i>
         Call
@@ -2118,16 +2155,6 @@ async function renderPostCard(post) {
     </div>
     <div class="reaction-picker hidden" data-picker>
       ${Object.entries(REACTIONS).map(([type, r]) => `<button type="button" data-react-type="${type}" aria-label="React with ${r.label}"><span aria-hidden="true">${r.emoji}</span></button>`).join("")}
-    </div>
-    <div class="comments-block">
-      ${comments.length ? `<div class="comment-list">${commentHtml}</div>` : ""}
-      <form class="comment-input-row" data-comment-form>
-        <label class="visually-hidden" for="comment-${post.postId}">Add a comment</label>
-        <input type="text" id="comment-${post.postId}" placeholder="Write a comment" maxlength="300">
-        <button type="submit" class="comment-send" aria-label="Send comment">
-          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-        </button>
-      </form>
     </div>
   </article>`;
 }
@@ -2147,18 +2174,6 @@ function attachFeedEventListeners() {
         toggleReaction(postId, btn.dataset.reactType);
         picker.classList.add("hidden");
       });
-    });
-    card.querySelector('[data-action="comment-focus"]').addEventListener("click", () => {
-      const input = card.querySelector('.comment-input-row input');
-      input.focus();
-    });
-    card.querySelector("[data-comment-form]").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = e.target.querySelector("input");
-      const val = input.value.trim();
-      if (!val) { input.setAttribute("aria-invalid", "true"); return; }
-      addComment(postId, val);
-      input.value = "";
     });
     card.querySelector('[data-action="chat-open"]').addEventListener("click", () => {
       openOwnerChatFromCustomer();
@@ -2180,11 +2195,11 @@ function attachFeedEventListeners() {
   });
   document.addEventListener("click", () => $all(".reaction-picker").forEach(p => p.classList.add("hidden")), { once: true });
 }
-// Owner-only confirmation step before a post is permanently removed
-// from this device and from every connected customer's feed.
+
+
 function confirmDeletePost(postId) {
   openModal("Delete this post?", `
-    <p style="font-size:14px;">This removes the photo, caption, comments and reactions for good. Connected customers will also lose it from their feed.</p>
+    <p style="font-size:14px;">This removes the photo, caption and reactions for good. Connected customers will also lose it from their feed.</p>
     <div style="display:flex;gap:10px;margin-top:16px;">
       <button class="btn btn-outline btn-block" id="cancelDeletePost">Cancel</button>
       <button class="btn btn-danger btn-block" id="confirmDeletePost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i>&nbsp; Delete</button>
@@ -2198,7 +2213,7 @@ function confirmDeletePost(postId) {
   });
 }
 
-/* ---- Live panel (owner) ---- */
+
 function renderLivePanel() {
   $("#ownerSessionDate").textContent = formatDisplayDate();
   const stamp = $("#ownerLiveStamp");
@@ -2230,7 +2245,42 @@ function renderPeerLists() {
   $("#profilePeerCount") && ($("#profilePeerCount").textContent = connectedPeerCount());
 }
 
-/* ---- Shop connect screen (customer) ---- */
+// Owner-only admin view: every customer record this owner device has
+// ever persisted (see ingestCustomerProfile), independent of whether
+// that customer is connected right now. This is real local data -
+// there is still no shared backend server, so this list reflects
+// only customers who have connected to THIS specific owner device at
+// some point, not a company-wide customer database.
+async function renderAdminCustomers() {
+  const wrap = $("#adminCustomerList");
+  if (!wrap || STATE.role !== "owner") return;
+  const customers = await dbGetAll("customers");
+  if (!customers.length) {
+    wrap.innerHTML = `<div class="empty-state"><h3>No customers yet</h3><p>Once a customer connects (same device or a cross-device QR connect), their profile will be saved here permanently on this device.</p></div>`;
+    return;
+  }
+  customers.sort((a, b) => new Date(b.lastSeenAt) - new Date(a.lastSeenAt));
+  const rows = await Promise.all(customers.map(async (c) => {
+    const isConnectedNow = Object.values(STATE.peers).some(p => p.status === "connected" && p.peerId === c.peerId);
+    const msgs = c.peerId ? await getMessagesForThread(c.peerId) : [];
+    return `
+      <div class="card" style="margin-bottom:10px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
+        <div class="chat-list-avatar" aria-hidden="true" style="width:36px;height:36px;font-size:13px;">${escapeHTML((c.name || "?").slice(0, 1).toUpperCase())}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:14px;font-weight:700;">${escapeHTML(c.name)}</span>
+            ${isConnectedNow ? `<span class="stamp live" style="font-size:9px;padding:2px 8px;">ONLINE</span>` : ""}
+          </div>
+          ${c.mobile ? `<div style="font-size:12.5px;color:var(--ink-soft);margin-top:2px;"><i class="fa-solid fa-phone" aria-hidden="true"></i>&nbsp; ${escapeHTML(c.mobile)}</div>` : ""}
+          <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">First connected ${escapeHTML(relativeOrTime(c.firstSeenAt))} &middot; Last seen ${escapeHTML(relativeOrTime(c.lastSeenAt))}</div>
+          ${msgs.length ? `<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i>&nbsp; ${msgs.length} chat message${msgs.length === 1 ? "" : "s"}</div>` : ""}
+        </div>
+      </div>`;
+  }));
+  wrap.innerHTML = rows.join("");
+}
+
+
 function renderShopConnectScreen() {
   const stamp = $("#shopConnStamp");
   const connected = connectedPeerCount() > 0;
@@ -2240,7 +2290,7 @@ function renderShopConnectScreen() {
   if (dateEl) dateEl.textContent = formatDisplayDate();
 }
 
-/* ---- Chat list ---- */
+
 async function renderChatList() {
   const wrap = $("#chatListWrap");
   if (!wrap) return;
@@ -2300,10 +2350,10 @@ async function openChatThread(peerId) {
   const entry = STATE.peers[peerId];
   const threadAvatarEl = $("#threadAvatar");
   if (STATE.role !== "owner") {
-    // Customer's thread is always with the shop/owner - show the shop logo.
+    
     threadAvatarEl.innerHTML = `<img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">`;
   } else {
-    // Owner's thread is with a specific customer - show their initial.
+    
     threadAvatarEl.textContent = entry ? (entry.name || "?").slice(0, 1).toUpperCase() : "?";
   }
   $("#threadName").textContent = entry ? entry.name : "Chat";
@@ -2331,18 +2381,16 @@ async function renderChatThread(peerId) {
   $("#threadStatus").textContent = entry && entry.status === "connected" ? "Connected · live" : "Not connected - messages will send once linked";
 }
 
-/* ---- Activity (customer) ---- */
+
 async function renderActivity() {
   const wrap = $("#activityList");
-  const comments = await dbGetAll("comments");
   const reactions = await dbGetAll("reactions");
   const actorId = STATE.customer ? STATE.customer.id : "guest";
   const mine = [
-    ...comments.filter(c => c.author === (STATE.customer ? STATE.customer.name : "")).map(c => ({ isEmoji: false, icon: "fa-regular fa-comment", color: "var(--blueberry)", text: "You commented: \u201c" + c.text + "\u201d", at: c.createdAt })),
     ...reactions.filter(r => r.actorId === actorId).map(r => ({ isEmoji: true, emoji: REACTIONS[r.type] ? REACTIONS[r.type].emoji : "\u2764\ufe0f", text: "You reacted to a post", at: r.createdAt }))
   ].sort((a, b) => new Date(b.at) - new Date(a.at));
   if (!mine.length) {
-    wrap.innerHTML = `<div class="empty-state"><h3>No activity yet</h3><p>Your likes and comments will show up here.</p></div>`;
+    wrap.innerHTML = `<div class="empty-state"><h3>No activity yet</h3><p>Your likes will show up here.</p></div>`;
     return;
   }
   wrap.innerHTML = mine.map(a => `
@@ -2355,7 +2403,7 @@ async function renderActivity() {
     </div>`).join("");
 }
 
-/* ---- Modal helper ---- */
+
 function openModal(titleText, bodyHtml, onMount) {
   const host = $("#modalHost");
   host.innerHTML = `
@@ -2386,15 +2434,15 @@ function showFullscreenQR() {
   });
 }
 
-/* ===================== EVENT HANDLERS ===================== */
+
 function initEventHandlers() {
-  // Entry screen
+  
   $("#btnContinueCustomer").addEventListener("click", () => showScreenGroup("customer-login"));
   $("#btnGoOwnerLogin").addEventListener("click", () => showScreenGroup("owner-login"));
   $("#backFromCustomerLogin").addEventListener("click", () => showScreenGroup("entry"));
   $("#backFromOwnerLogin").addEventListener("click", () => showScreenGroup("entry"));
 
-  // Customer login
+  
   $("#formCustomerLogin").addEventListener("submit", (e) => {
     e.preventDefault();
     const mobile = $("#custMobile").value.trim();
@@ -2410,7 +2458,7 @@ function initEventHandlers() {
     toast("Welcome, " + (name || "Guest") + "!");
   });
 
-  // Owner login
+  
   $("#formOwnerLogin").addEventListener("submit", (e) => {
     e.preventDefault();
     const u = $("#ownerUser").value.trim();
@@ -2426,7 +2474,7 @@ function initEventHandlers() {
     }
   });
 
-  // Password show/hide toggle
+  
   $("#toggleOwnerPass").addEventListener("click", () => {
     const input = $("#ownerPass");
     const btn = $("#toggleOwnerPass");
@@ -2436,26 +2484,26 @@ function initEventHandlers() {
     icon.className = nowVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
     btn.setAttribute("aria-label", nowVisible ? "Hide password" : "Show password");
     btn.setAttribute("aria-pressed", nowVisible ? "true" : "false");
-    // Keep focus and caret in the field after toggling, rather than
-    // stealing focus onto the icon button.
+    
+    
     input.focus();
-    // setSelectionRange throws in some browsers when input.type is
-    // "password" (Firefox/Safari disallow it on that type) - guard so
-    // toggling back to hidden never throws and breaks the click handler.
+    
+    
+    
     try {
       const pos = input.value.length;
       input.setSelectionRange(pos, pos);
-    } catch (err) { /* not supported for type=password in this browser, safe to ignore */ }
+    } catch (err) {  }
   });
 
-  // Bottom nav (both)
+  
   $all(".nav-item").forEach(btn => btn.addEventListener("click", () => navigateTo(btn.dataset.screen)));
 
-  // Topbar
+  
   $("#btnThemeToggle").addEventListener("click", toggleTheme);
   $("#btnTopbarLive").addEventListener("click", () => navigateTo(STATE.role === "owner" ? "live" : "shop"));
 
-  // Create post
+  
   $("#cameraInput").addEventListener("change", handleImageSelect);
   $("#galleryInput").addEventListener("change", handleImageSelect);
   $("#postCaption").addEventListener("input", () => {
@@ -2463,15 +2511,21 @@ function initEventHandlers() {
   });
   $("#formCreatePost").addEventListener("submit", handleCreatePostSubmit);
 
-  // Live panel (owner)
+  
   $("#btnToggleLive").addEventListener("click", toggleLiveSession);
+  $("#btnStartDeviceConnect") && $("#btnStartDeviceConnect").addEventListener("click", () => {
+    startDeviceConnect();
+  });
+  $("#btnScanToConnect") && $("#btnScanToConnect").addEventListener("click", () => {
+    openQrScanner((code) => { connectToDeviceWithOffer(code); }, "Scan the Shop's Connect QR");
+  });
 
-  // Chat thread
+  
   $("#btnBackFromThread").addEventListener("click", () => navigateTo("chatlist"));
   $("#btnSendChat").addEventListener("click", sendChatFromComposer);
   $("#chatMsgInput").addEventListener("keypress", (e) => { if (e.key === "Enter") sendChatFromComposer(); });
 
-  // Profile
+  
   $("#toggleDarkMode").addEventListener("click", toggleTheme);
   $("#btnInstallApp").addEventListener("click", triggerInstall);
   $("#btnShowQrFullscreen").addEventListener("click", showFullscreenQR);
@@ -2561,15 +2615,15 @@ function updateOfflineBanner() {
   $("#offlineBanner").classList.toggle("hidden", navigator.onLine);
 }
 
-/* ===================== INITIALIZATION ===================== */
+
 async function init() {
-  // Theme
+  
   const savedTheme = localStorage.getItem("rr_theme");
   if (savedTheme === "dark") { STATE.theme = "dark"; document.documentElement.setAttribute("data-theme", "dark"); }
 
-  // Daily session code - generated fresh from the device clock, never
-  // hard-coded, and persisted only so the UI has something to show
-  // instantly on reload before the watcher confirms it's current.
+  
+  
+  
   STATE.todaySessionCode = getTodaySessionCode();
   localStorage.setItem("rr_session_code", STATE.todaySessionCode);
   localStorage.setItem("rr_session_code_date", formatDisplayDate());
