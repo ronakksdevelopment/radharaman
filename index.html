@@ -616,35 +616,20 @@ button{cursor:pointer;}
 
       <div class="card" style="margin-bottom:16px;">
         <h3 style="margin:0 0 4px;font-size:15px;"><i class="fa-brands fa-github" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; GitHub connection</h3>
-        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;">Enter a fine-grained personal access token scoped to <b>only this repository</b> with <b>Contents: Read and write</b> permission. The token stays on this device only and is never included in the published site.</p>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 4px;">Publishing to: <b id="ghRepoInfo">-</b></p>
+        <p style="font-size:11.5px;color:var(--ink-soft);margin:0 0 12px;">To change the repository, branch, or file path, edit the <code>GH_SOURCE</code> block near the top of <code>app.js</code> and re-publish the app files - that part is public info (just a URL) and ships with the site so every customer's device already knows where to read posts from, even before they log in.</p>
         <form id="formGithubConfig">
           <div class="field">
-            <label for="ghOwner">Repository owner</label>
-            <input type="text" id="ghOwner" placeholder="e.g. rupak-ghosh" autocapitalize="off">
-          </div>
-          <div class="field">
-            <label for="ghRepo">Repository name</label>
-            <input type="text" id="ghRepo" placeholder="e.g. radharaman-fruitshop" autocapitalize="off">
-          </div>
-          <div class="field">
-            <label for="ghBranch">Branch</label>
-            <input type="text" id="ghBranch" placeholder="main" autocapitalize="off">
-          </div>
-          <div class="field">
-            <label for="ghPath">Data file path</label>
-            <input type="text" id="ghPath" placeholder="data/posts.json" autocapitalize="off">
-          </div>
-          <div class="field">
-            <label for="ghToken">Fine-grained personal access token</label>
+            <label for="ghToken">Fine-grained personal access token (publish only)</label>
             <div class="password-field-wrap">
               <input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off">
               <button type="button" class="password-toggle-btn" id="toggleGhToken" aria-label="Show token" aria-pressed="false">
                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
               </button>
             </div>
-            <p class="field-hint">Stored only in this browser's local storage on this device.</p>
+            <p class="field-hint">Scoped to only this repo, Contents: Read and write. Stored only in this browser's local storage on this device - never needed by customers, and never shipped with the site.</p>
           </div>
-          <button type="submit" class="btn btn-outline btn-block">Save Connection Settings</button>
+          <button type="submit" class="btn btn-outline btn-block">Save Token</button>
         </form>
       </div>
 
