@@ -1284,43 +1284,68 @@ async function publishToGithub(opts) {
     const content = utf8ToBase64(JSON.stringify(payload, null, 2));
 
     // Look up the current file SHA, if it already exists, so the API
-    // treats this as an update rather than a conflicting create.
+    // treats this as an update rather than a conflicting create. A 404
+    // here just means the file (or its parent folder) doesn't exist
+    // yet on this branch - that's expected on first publish, GitHub
+    // creates any missing folders automatically from the PUT below, so
+    // we simply proceed with sha = null (create instead of update).
     let sha = null;
-    const getRes = await fetch(githubContentsApiUrl(GH_SOURCE) + "?ref=" + encodeURIComponent(GH_SOURCE.branch) + "&_=" + Date.now(), {
-      cache: "no-store",
-      headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Cache-Control": "no-cache" }
-    });
+    let getRes;
+    try {
+      getRes = await fetch(githubContentsApiUrl(GH_SOURCE) + "?ref=" + encodeURIComponent(GH_SOURCE.branch) + "&_=" + Date.now(), {
+        cache: "no-store",
+        headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Cache-Control": "no-cache" }
+      });
+    } catch (netErr) {
+      throw new Error(networkErrorMessage(netErr));
+    }
     if (getRes.status === 200) {
       const getData = await getRes.json();
       sha = getData.sha;
+    } else if (getRes.status === 401 || getRes.status === 403) {
+      throw new Error("GitHub rejected the token (" + getRes.status + "). Check it's valid, not expired, and has Contents: Read and write access on this repo.");
     } else if (getRes.status !== 404) {
       const errBody = await getRes.text();
       throw new Error("GitHub lookup failed (" + getRes.status + "): " + errBody.slice(0, 200));
     }
+    // status 404 (file/folder missing) falls through here with sha still
+    // null - this is the "reset and auto-create" path: the very next
+    // PUT below creates data/posts.json (and the data/ folder with it)
+    // from scratch, so a deleted or never-existing folder/file heals
+    // itself on the next publish with no manual setup needed.
 
-    const putRes = await fetch(githubContentsApiUrl(GH_SOURCE), {
-      method: "PUT",
-      headers: {
-        Authorization: "Bearer " + token,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: "Update shop posts (" + posts.length + " posts) - " + new Date().toISOString(),
-        content: content,
-        branch: GH_SOURCE.branch,
-        sha: sha || undefined
-      })
-    });
+    let putRes;
+    try {
+      putRes = await fetch(githubContentsApiUrl(GH_SOURCE), {
+        method: "PUT",
+        headers: {
+          Authorization: "Bearer " + token,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: (sha ? "Update" : "Create") + " shop posts (" + posts.length + " posts) - " + new Date().toISOString(),
+          content: content,
+          branch: GH_SOURCE.branch,
+          sha: sha || undefined
+        })
+      });
+    } catch (netErr) {
+      throw new Error(networkErrorMessage(netErr));
+    }
     if (!putRes.ok) {
       const errBody = await putRes.text();
-      throw new Error("GitHub publish failed (" + putRes.status + "): " + errBody.slice(0, 200));
+      let hint = "";
+      if (putRes.status === 401 || putRes.status === 403) hint = " - check the token is valid and has Contents: Read and write access on this repo.";
+      else if (putRes.status === 404) hint = " - check GH_SOURCE.owner/repo/branch in app.js match a real repo and branch the token can access.";
+      else if (putRes.status === 409) hint = " - someone else published at the same moment; retrying automatically.";
+      throw new Error("GitHub publish failed (" + putRes.status + ")" + hint + ": " + errBody.slice(0, 200));
     }
 
     STATE.lastPublishedAt = new Date().toISOString();
     localStorage.setItem("rr_last_published_at", STATE.lastPublishedAt);
     localStorage.removeItem("rr_pending_publish");
-    appendPublishLog("Published " + posts.length + " posts successfully" + (silent ? " (auto)" : "") + ".");
+    appendPublishLog((sha ? "Published " : "Created data/posts.json and published ") + posts.length + " posts successfully" + (silent ? " (auto)" : "") + ".");
     if (!silent) toast("Published! Syncing to all devices now.");
     renderPublishPanel();
     return true;
@@ -1328,13 +1353,27 @@ async function publishToGithub(opts) {
     appendPublishLog("Error: " + err.message);
     if (!silent) toast("Publish failed: " + err.message);
     // Leave rr_pending_publish set so the change is retried: either the
-    // owner retries manually, or the next local change triggers another
-    // auto-publish attempt automatically.
+    // owner retries manually, or the next local change - or the next
+    // poll tick's self-healing retry - triggers another auto-publish
+    // attempt automatically.
     return false;
   } finally {
     publishInFlight = false;
     if (btn && !silent) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-github" aria-hidden="true"></i>&nbsp; Publish to Live Site'; }
   }
+}
+
+/* Turn a raw fetch()-level failure (TypeError: "Failed to fetch") into
+   an actionable message. This is what shows up when the request never
+   even reached GitHub - offline, DNS failure, CORS block, or a browser
+   extension (ad blocker / privacy blocker) interfering - as opposed to
+   a GitHub API error, which always comes back with a status code and
+   is handled separately above. */
+function networkErrorMessage(netErr) {
+  if (!navigator.onLine) {
+    return "You're offline - this device has no internet connection right now. It'll auto-retry once you're back online.";
+  }
+  return "Couldn't reach GitHub (network error: " + (netErr && netErr.message ? netErr.message : "failed to fetch") + "). Check your internet connection, and disable any ad-blocker or privacy extension for this site if the problem continues.";
 }
 
 /* Poll the published JSON file and merge any changes into local
