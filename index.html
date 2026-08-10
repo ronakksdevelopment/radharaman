@@ -1294,7 +1294,7 @@ async function publishToGithub(opts) {
     try {
       getRes = await fetch(githubContentsApiUrl(GH_SOURCE) + "?ref=" + encodeURIComponent(GH_SOURCE.branch) + "&_=" + Date.now(), {
         cache: "no-store",
-        headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Cache-Control": "no-cache" }
+        headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" }
       });
     } catch (netErr) {
       throw new Error(networkErrorMessage(netErr));
@@ -1384,10 +1384,15 @@ function networkErrorMessage(netErr) {
 async function pollForUpdates() {
   if (!githubSourceIsComplete(GH_SOURCE)) return;
   try {
-    const res = await fetch(githubRawUrl(GH_SOURCE), {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache" }
-    });
+    // IMPORTANT: no custom headers here (no Cache-Control/Pragma). Those
+    // trigger a CORS preflight (OPTIONS) request, and
+    // raw.githubusercontent.com rejects preflighted requests entirely
+    // (403 on OPTIONS), which makes every fetch() throw a generic
+    // "Failed to fetch" with no useful reason. The cache: "no-store"
+    // fetch option plus the random query string in githubRawUrl() are
+    // enough to guarantee a fresh network hit without ever adding a
+    // header that would trigger a preflight.
+    const res = await fetch(githubRawUrl(GH_SOURCE), { cache: "no-store" });
     if (!res.ok) return; // file may not exist yet - nothing to merge
     const data = await res.json();
     await mergeRemotePosts(data.posts);
