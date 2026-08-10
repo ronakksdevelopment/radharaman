@@ -7,17 +7,12 @@
 <title>Radha Raman Fruit Shop</title>
 <meta name="description" content="Radha Raman Fruit Shop - fresh fruit & food, social-style shop by Rupak Ghosh">
 
-
-
-
-<link rel="icon" id="favicon" href="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png">
+<link rel="icon" id="favicon" href="https://i.ibb.co/Y44BFz8p/fruit-shop.png">
 
 <link rel="stylesheet" id="faStylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 <script>
-  
-  
-  
-  
+  /* Font Awesome CDN fallback: if the primary CDN fails to load or the
+     icon font doesn't actually render, swap in a secondary CDN. */
   (function () {
     var primary = document.getElementById("faStylesheet");
     var switched = false;
@@ -32,9 +27,6 @@
       document.head.appendChild(fallback);
     }
     primary.addEventListener("error", useFallback);
-    
-    
-    
     window.addEventListener("load", function () {
       setTimeout(function () {
         var test = document.createElement("i");
@@ -51,6 +43,7 @@
 
 <style>
 
+/* ===== Design tokens ===== */
 :root{
   --mango:#E8871E;
   --mango-dark:#C56A0E;
@@ -68,6 +61,8 @@
   --banana-dark:#C98F00;
   --banana-light:#FCEAB3;
   --grape:#7A4C8C;
+  --whatsapp:#25D366;
+  --whatsapp-dark:#1DA851;
   --cream:#FFF8ED;
   --cream-2:#FFF1DC;
   --ink:#1F1B16;
@@ -118,12 +113,10 @@ a{color:inherit;}
 button{cursor:pointer;}
 :focus-visible{outline:3px solid var(--mango-dark);outline-offset:2px;border-radius:6px;}
 
-
-
 .hidden{display:none !important;}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 
-
+/* ===== App shell ===== */
 #app{
   max-width:520px;
   margin:0 auto;
@@ -138,7 +131,7 @@ button{cursor:pointer;}
   body{background:var(--cream-2);}
 }
 
-
+/* ===== Top bar ===== */
 .topbar{
   position:sticky;top:0;z-index:40;
   display:flex;align-items:center;justify-content:space-between;
@@ -165,14 +158,9 @@ button{cursor:pointer;}
   color:var(--ink);transition:transform .15s ease,background .15s ease;
 }
 .icon-btn:active{transform:scale(0.92);}
-.icon-btn.live-dot{position:relative;}
 .post-delete-btn{width:34px;height:34px;flex-shrink:0;margin-left:auto;}
-.live-pulse{
-  position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;
-  background:var(--watermelon);border:2px solid var(--paper);
-}
 
-
+/* ===== Badges / stamps ===== */
 .stamp{
   display:inline-flex;align-items:center;gap:6px;
   padding:5px 12px 5px 10px;
@@ -182,17 +170,16 @@ button{cursor:pointer;}
   font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
   transform:rotate(-2deg);
 }
-.stamp.live{color:var(--watermelon);background:rgba(214,69,69,0.08);}
+.stamp.live{color:var(--kiwi);background:rgba(76,140,59,0.08);}
 .stamp.off{color:var(--ink-soft);background:rgba(107,97,86,0.08);}
 .stamp .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
 .stamp.live .dot{animation:blink 1.4s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
 
-
 .screen{padding:16px;animation:fadein .25s ease;}
 @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
-
+/* ===== Entry / auth screens ===== */
 .entry-wrap{
   min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
@@ -223,13 +210,15 @@ button{cursor:pointer;}
 .btn-outline{background:var(--paper);color:var(--ink);border:1.5px solid var(--line);}
 .btn-danger{background:var(--watermelon);color:#fff;box-shadow:0 6px 18px rgba(214,69,69,0.3);}
 .btn-kiwi{background:var(--kiwi);color:#fff;}
+.btn-whatsapp{background:var(--whatsapp);color:#fff;box-shadow:0 6px 18px rgba(37,211,102,0.3);}
+.btn-whatsapp:hover{filter:brightness(1.04);}
 .btn-block{width:100%;}
 .btn-sm{padding:9px 14px;font-size:13px;min-height:auto;border-radius:10px;}
 .btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
 .entry-footnote{margin-top:26px;font-size:11.5px;color:var(--ink-soft);line-height:1.5;max-width:320px;}
 
-
+/* ===== Form fields ===== */
 .field{margin-bottom:14px;text-align:left;}
 .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink-soft);}
 .field input[type=text],
@@ -246,7 +235,6 @@ button{cursor:pointer;}
 .field textarea{resize:vertical;min-height:80px;}
 .field-hint{font-size:11.5px;color:var(--ink-soft);margin-top:5px;}
 .field-error{font-size:12px;color:var(--watermelon-dark);margin-top:5px;font-weight:600;}
-
 
 .password-field-wrap{position:relative;}
 .password-field-wrap input[type=password],
@@ -272,7 +260,7 @@ button{cursor:pointer;}
   background:none;border:none;padding:6px 0;margin-bottom:6px;
 }
 
-
+/* ===== Bottom nav ===== */
 .bottom-nav{
   position:fixed;left:50%;transform:translateX(-50%);
   bottom:0;width:100%;max-width:520px;
@@ -287,13 +275,8 @@ button{cursor:pointer;}
   font-size:10.5px;font-weight:600;border-radius:12px;position:relative;
 }
 .nav-item.active{color:var(--mango-dark);}
-.nav-item .nav-badge{
-  position:absolute;top:2px;right:calc(50% - 20px);
-  background:var(--watermelon);color:#fff;font-size:9px;font-weight:700;
-  min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;
-}
 
-
+/* ===== Feed ===== */
 .feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .section-title{font-size:19px;margin:0;}
 .session-chip{
@@ -335,6 +318,7 @@ button{cursor:pointer;}
 }
 .action-btn:active{transform:scale(0.94);}
 .action-btn.liked{color:var(--watermelon);}
+.action-btn.whatsapp-action{color:var(--whatsapp-dark);}
 .action-btn:hover{background:var(--cream-2);}
 .reaction-summary{display:flex;align-items:center;gap:6px;padding:0 14px 8px;font-size:12px;color:var(--ink-soft);}
 .reaction-pills{display:flex;}
@@ -350,14 +334,12 @@ button{cursor:pointer;}
 .reaction-picker button:hover{transform:scale(1.25);}
 .action-wrap{position:relative;}
 
-
-
 .empty-state{text-align:center;padding:60px 24px;color:var(--ink-soft);}
 .empty-state svg{margin-bottom:12px;opacity:.6;}
 .empty-state h3{color:var(--ink);margin:0 0 6px;font-size:16px;}
 .empty-state p{font-size:13px;margin:0;}
 
-
+/* ===== Create post ===== */
 .image-drop{
   border:2px dashed var(--line);border-radius:var(--radius);
   padding:24px;text-align:center;background:var(--cream-2);margin-bottom:14px;position:relative;overflow:hidden;
@@ -369,63 +351,26 @@ button{cursor:pointer;}
   border-radius:100px;padding:9px 15px;font-size:13px;font-weight:600;color:var(--ink);
 }
 
-
-.live-panel{
+/* ===== Owner publish panel ===== */
+.publish-panel{
   background:var(--mango);
   border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;
 }
-.live-panel::after{
+.publish-panel::after{
   content:"";position:absolute;right:-30px;bottom:-30px;width:140px;height:140px;
   background:rgba(255,255,255,0.12);border-radius:50%;
 }
-.live-code{
-  font-family:var(--font-display);font-size:32px;font-weight:700;letter-spacing:.04em;margin:6px 0 2px;
+.publish-stats{display:flex;gap:18px;margin-top:14px;position:relative;z-index:1;}
+.publish-stat b{display:block;font-size:20px;font-family:var(--font-display);}
+.publish-stat span{font-size:11px;opacity:.85;}
+.publish-log{
+  max-height:160px;overflow-y:auto;font-size:11.5px;font-family:monospace;
+  background:var(--cream-2);border-radius:10px;padding:10px;margin-top:10px;color:var(--ink-soft);
 }
-.live-stats{display:flex;gap:18px;margin-top:14px;position:relative;z-index:1;}
-.live-stat b{display:block;font-size:20px;font-family:var(--font-display);}
-.live-stat span{font-size:11px;opacity:.85;}
+.publish-log div{padding:2px 0;border-bottom:1px solid var(--line);}
+.publish-log div:last-child{border-bottom:none;}
 
-.qr-box{
-  background:var(--paper);border-radius:var(--radius);padding:20px;text-align:center;
-  box-shadow:var(--shadow);margin-bottom:16px;
-}
-#qrCanvasWrap{display:flex;justify-content:center;margin:14px 0;}
-#qrCanvasWrap canvas{border-radius:12px;box-shadow:0 0 0 8px var(--paper);}
-
-.peer-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);}
-.peer-row:last-child{border-bottom:none;}
-.peer-dot{width:9px;height:9px;border-radius:50%;background:var(--kiwi);flex-shrink:0;}
-.peer-dot.pending{background:var(--mango);}
-
-
-.chat-thread{padding:12px 16px;display:flex;flex-direction:column;gap:10px;min-height:calc(100vh - 230px);min-height:calc(100dvh - 230px);}
-.msg-row{display:flex;max-width:80%;}
-.msg-row.me{align-self:flex-end;flex-direction:row-reverse;}
-.msg-bubble{
-  padding:10px 13px;border-radius:16px;font-size:14px;line-height:1.4;position:relative;word-break:break-word;
-}
-.msg-row.me .msg-bubble{background:var(--mango);color:#fff;border-bottom-right-radius:4px;}
-.msg-row.them .msg-bubble{background:var(--paper);border:1px solid var(--line);border-bottom-left-radius:4px;}
-.msg-meta{font-size:9.5px;margin-top:3px;opacity:.75;display:flex;gap:4px;align-items:center;}
-.chat-composer{
-  position:sticky;bottom:calc(78px + var(--safe-bottom));background:var(--cream);
-  display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--line);
-}
-.chat-composer input{
-  flex:1;border:1.5px solid var(--line);border-radius:100px;padding:11px 16px;font-size:16px;background:var(--paper);color:var(--ink);
-}
-.chat-list-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;}
-.chat-list-item:active{background:var(--cream-2);}
-.chat-list-avatar{
-  width:44px;height:44px;border-radius:50%;background:var(--mango-light);color:var(--mango-dark);
-  display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;
-  overflow:hidden;
-}
-.chat-list-text{flex:1;min-width:0;}
-.chat-list-name{font-size:14px;font-weight:700;}
-.chat-list-preview{font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-
+/* ===== Profile ===== */
 .profile-hero{text-align:center;padding:20px 16px 8px;}
 .profile-avatar{
   width:84px;height:84px;border-radius:24px;margin:0 auto 12px;
@@ -446,7 +391,7 @@ button{cursor:pointer;}
 }
 .toggle.on::after{transform:translateX(20px);}
 
-
+/* ===== Toasts / modal ===== */
 #toastHost{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(94px + var(--safe-bottom));z-index:200;display:flex;flex-direction:column;gap:8px;width:calc(100% - 32px);max-width:480px;pointer-events:none;}
 .toast{
   background:var(--ink);color:var(--cream);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:600;
@@ -494,10 +439,10 @@ button{cursor:pointer;}
 
 <div id="app">
 
-  
+  <!-- Entry screen -->
   <section id="screen-entry" class="screen entry-wrap">
     <div class="entry-logo" aria-hidden="true">
-      <img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">
+      <img src="https://i.ibb.co/Y44BFz8p/fruit-shop.png" alt="" class="logo-img">
     </div>
     <h1 class="entry-title display">Radha Raman Fruit Shop</h1>
     <p class="entry-owner">Fresh picks, posted daily · Owner: Rupak Ghosh</p>
@@ -511,22 +456,22 @@ button{cursor:pointer;}
         Owner Login
       </button>
     </div>
-    <p class="entry-footnote">Version 1 · P2P Prototype - runs entirely in your browser. No account data leaves your device except what you choose to sync peer-to-peer.</p>
+    <p class="entry-footnote">New posts appear automatically - no need to refresh the page.</p>
   </section>
 
-  
+  <!-- Customer login -->
   <section id="screen-customer-login" class="screen entry-wrap hidden">
     <button class="back-link" id="backFromCustomerLogin" aria-label="Go back">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </button>
     <div class="card auth-card">
       <h2 class="display" style="margin-top:0;font-size:20px;">Welcome, guest <i class="fa-solid fa-hand-sparkles" style="color:var(--banana-dark);" aria-hidden="true"></i></h2>
-      <p style="color:var(--ink-soft);font-size:13px;margin-top:-6px;">Enter your mobile number to view the shop feed, like posts and chat with the shop.</p>
+      <p style="color:var(--ink-soft);font-size:13px;margin-top:-6px;">Enter your mobile number to view the shop feed, like posts and message the shop on WhatsApp.</p>
       <form id="formCustomerLogin" novalidate>
         <div class="field">
           <label for="custMobile">Mobile number</label>
           <input type="tel" id="custMobile" inputmode="numeric" placeholder="e.g. 98XXXXXXXX" maxlength="10" autocomplete="tel" aria-describedby="custMobileHint">
-          <p class="field-hint" id="custMobileHint">10-digit number, used only to identify you locally. Not shown to other customers.</p>
+          <p class="field-hint" id="custMobileHint">10-digit number, used only to identify you on this device.</p>
           <p class="field-error hidden" id="custMobileError"></p>
         </div>
         <div class="field">
@@ -538,14 +483,14 @@ button{cursor:pointer;}
     </div>
   </section>
 
-  
+  <!-- Owner login -->
   <section id="screen-owner-login" class="screen entry-wrap hidden">
     <button class="back-link" id="backFromOwnerLogin" aria-label="Go back">
       <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back
     </button>
     <div class="card auth-card">
       <h2 class="display" style="margin-top:0;font-size:20px;">Owner Login</h2>
-      <p style="color:var(--ink-soft);font-size:13px;margin-top:-6px;">Manage posts, go live, and chat with customers.</p>
+      <p style="color:var(--ink-soft);font-size:13px;margin-top:-6px;">Manage posts and publish live updates.</p>
       <form id="formOwnerLogin" novalidate>
         <div class="field">
           <label for="ownerUser">Username</label>
@@ -566,14 +511,14 @@ button{cursor:pointer;}
     </div>
   </section>
 
-  
+  <!-- Main app -->
   <div id="mainApp" class="hidden">
-    <div id="offlineBanner" class="offline-banner hidden">You're offline - showing saved posts. New activity will sync when you reconnect.</div>
+    <div id="offlineBanner" class="offline-banner hidden">You're offline - showing saved posts. New posts will sync when you reconnect.</div>
 
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">
+          <img src="https://i.ibb.co/Y44BFz8p/fruit-shop.png" alt="" class="logo-img">
         </div>
         <div>
           <div class="brand-name">Radha Raman Fruit Shop</div>
@@ -584,14 +529,10 @@ button{cursor:pointer;}
         <button class="icon-btn" id="btnThemeToggle" aria-label="Toggle dark mode">
           <i id="themeIconMoon" class="fa-solid fa-moon" aria-hidden="true"></i>
         </button>
-        <button class="icon-btn live-dot" id="btnTopbarLive" aria-label="Live session status">
-          <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
-          <span id="liveDotIndicator" class="live-pulse hidden"></span>
-        </button>
       </div>
     </header>
 
-    
+    <!-- Home feed -->
     <section id="screen-home" class="screen">
       <div class="feed-header">
         <h2 class="section-title display">Today's Picks</h2>
@@ -600,7 +541,7 @@ button{cursor:pointer;}
       <div id="feedList"></div>
     </section>
 
-    
+    <!-- Owner: create post -->
     <section id="screen-create" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">New Post</h2>
       <form id="formCreatePost">
@@ -629,12 +570,16 @@ button{cursor:pointer;}
           <label for="postCategory">Category (optional)</label>
           <select id="postCategory">
             <option value="">General</option>
-            <option value="Fruits">Fruits</option>
-            <option value="Vegetables">Vegetables</option>
-            <option value="Dairy">Dairy</option>
-            <option value="Bakery">Bakery</option>
-            <option value="Groceries">Groceries</option>
-            <option value="Combo Offer">Combo Offer</option>
+            <option value="Seasonal Fruits">Seasonal Fruits</option>
+            <option value="Citrus Fruits">Citrus Fruits</option>
+            <option value="Tropical Fruits">Tropical Fruits</option>
+            <option value="Berries">Berries</option>
+            <option value="Melons">Melons</option>
+            <option value="Stone Fruits">Stone Fruits</option>
+            <option value="Exotic Fruits">Exotic Fruits</option>
+            <option value="Dry Fruits & Nuts">Dry Fruits &amp; Nuts</option>
+            <option value="Fruit Combo Offer">Fruit Combo Offer</option>
+            <option value="Fresh Juice">Fresh Juice</option>
           </select>
         </div>
         <div class="field">
@@ -646,106 +591,76 @@ button{cursor:pointer;}
       </form>
     </section>
 
-    
-    <section id="screen-live" class="screen hidden">
-      <h2 class="section-title display" style="margin-bottom:14px;">Shop Session</h2>
-      <div class="live-panel">
+    <!-- Owner: publish / admin panel -->
+    <section id="screen-publish" class="screen hidden">
+      <h2 class="section-title display" style="margin-bottom:14px;">Publish Updates</h2>
+
+      <div class="publish-panel">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
           <div>
-            <div style="font-size:12px;opacity:.9;font-weight:600;">TODAY'S SHOP DAY</div>
-            <div class="live-code" id="ownerSessionDate">-</div>
+            <div style="font-size:12px;opacity:.9;font-weight:600;">GITHUB SYNC STATUS</div>
+            <div class="live-code" id="publishStatusText" style="font-family:var(--font-display);font-size:22px;font-weight:700;margin:6px 0 2px;">Not configured</div>
           </div>
-          <span class="stamp live" id="ownerLiveStamp" style="color:#fff;border-color:rgba(255,255,255,.7);background:rgba(255,255,255,0.15);"><i class="fa-solid fa-circle dot" aria-hidden="true"></i>OFFLINE</span>
+          <span class="stamp off" id="publishStamp" style="color:#fff;border-color:rgba(255,255,255,.7);background:rgba(255,255,255,0.15);"><i class="fa-solid fa-circle dot" aria-hidden="true"></i>OFFLINE</span>
         </div>
-        <div class="live-stats">
-          <div class="live-stat"><b id="ownerPeerCount">0</b><span>Connected Customers</span></div>
-          <div class="live-stat"><b id="ownerPostCount">0</b><span>Posts Today</span></div>
+        <div class="publish-stats">
+          <div class="publish-stat"><b id="publishPostCount">0</b><span>Local Posts</span></div>
+          <div class="publish-stat"><b id="publishLastPushed">-</b><span>Last Published</span></div>
         </div>
         <div style="margin-top:16px;">
-          <button class="btn btn-block" id="btnToggleLive" style="background:#fff;color:var(--mango-dark);">Start Shop Session</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <h3 style="margin:0 0 4px;font-size:15px;"><i class="fa-solid fa-tower-broadcast" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; Cross-device connect</h3>
-        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;">Customers on this device or browser link up automatically, no code needed. To link a customer on a <b>separate phone</b>, tap below to generate a one-time connect QR - they scan it once with their app, and a real direct P2P link opens between your two devices for live posts and chat.</p>
-        <button class="btn btn-block" id="btnStartDeviceConnect" style="background:var(--blueberry);color:#fff;">
-          <i class="fa-solid fa-qrcode" aria-hidden="true"></i>&nbsp; Connect a Customer's Device
-        </button>
-      </div>
-
-      <div class="card">
-        <h3 style="margin:0 0 8px;font-size:15px;">Connected Peers</h3>
-        <div id="ownerPeerList"><p style="font-size:13px;color:var(--ink-soft);">No customers connected yet.</p></div>
-      </div>
-    </section>
-
-    
-    <section id="screen-shop" class="screen hidden">
-      <h2 class="section-title display" style="margin-bottom:4px;">Shop Connection</h2>
-      <p style="font-size:13px;color:var(--ink-soft);margin:0 0 16px;">On this device or browser you link to the shop automatically. Connecting to the shop owner's <b>separate phone</b> needs one quick QR scan.</p>
-
-      <div class="qr-box">
-        <span class="stamp off" id="shopConnStamp"><i class="fa-solid fa-circle dot" aria-hidden="true"></i>CONNECTING</span>
-        <p style="font-size:13px;color:var(--ink-soft);margin:10px 0 0;">Today's shop day</p>
-        <div class="live-code" id="shopScreenDate" style="color:var(--mango-dark);font-size:22px;">-</div>
-      </div>
-
-      <div class="card" style="margin-bottom:16px;">
-        <button class="btn btn-block" id="btnScanToConnect" style="background:var(--blueberry);color:#fff;">
-          <i class="fa-solid fa-camera" aria-hidden="true"></i>&nbsp; Scan Shop's Connect QR
-        </button>
-      </div>
-
-      <div class="card">
-        <h3 style="margin:0 0 8px;font-size:15px;"><i class="fa-solid fa-circle-info" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; How cross-device P2P works</h3>
-        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.6;margin:0;">If you and the shop are using the same device or browser (for example testing on one laptop), the link is instant with nothing to scan. On separate phones, a real direct WebRTC connection is opened after a one-time QR scan - this is genuine peer-to-peer, not simulated, but on strict mobile-carrier networks a P2P link can occasionally fail to establish; if that happens, reopening the app still shows every post the shop has published.</p>
-      </div>
-    </section>
-
-    
-    <section id="screen-chatlist" class="screen hidden">
-      <h2 class="section-title display" style="margin-bottom:14px;">Chat</h2>
-      <div id="chatListWrap"></div>
-    </section>
-
-    
-    <section id="screen-chatthread" class="screen hidden" style="padding:0;">
-      <header class="topbar" style="position:sticky;top:0;">
-        <div class="brand">
-          <button class="icon-btn" id="btnBackFromThread" aria-label="Back to chat list" style="margin-right:2px;">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          <button class="btn btn-block" id="btnPublishNow" style="background:#fff;color:var(--mango-dark);">
+            <i class="fa-brands fa-github" aria-hidden="true"></i>&nbsp; Publish to Live Site
           </button>
-          <div class="post-avatar" style="width:34px;height:34px;font-size:12px;" id="threadAvatar">?</div>
-          <div>
-            <div class="brand-name" id="threadName" style="font-size:14px;">Chat</div>
-            <div class="brand-sub" id="threadStatus">Not connected</div>
-          </div>
         </div>
-      </header>
-      <div class="chat-thread" id="chatThreadMessages"></div>
-      <div class="chat-composer">
-        <input type="text" id="chatMsgInput" placeholder="Type a message…" maxlength="500" aria-label="Type a message">
-        <button class="icon-btn" id="btnSendChat" style="background:var(--mango);color:#fff;border:none;" aria-label="Send message">
-          <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-        </button>
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="margin:0 0 4px;font-size:15px;"><i class="fa-brands fa-github" style="color:var(--blueberry);" aria-hidden="true"></i>&nbsp; GitHub connection</h3>
+        <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;">Enter a fine-grained personal access token scoped to <b>only this repository</b> with <b>Contents: Read and write</b> permission. The token stays on this device only and is never included in the published site.</p>
+        <form id="formGithubConfig">
+          <div class="field">
+            <label for="ghOwner">Repository owner</label>
+            <input type="text" id="ghOwner" placeholder="e.g. rupak-ghosh" autocapitalize="off">
+          </div>
+          <div class="field">
+            <label for="ghRepo">Repository name</label>
+            <input type="text" id="ghRepo" placeholder="e.g. radharaman-fruitshop" autocapitalize="off">
+          </div>
+          <div class="field">
+            <label for="ghBranch">Branch</label>
+            <input type="text" id="ghBranch" placeholder="main" autocapitalize="off">
+          </div>
+          <div class="field">
+            <label for="ghPath">Data file path</label>
+            <input type="text" id="ghPath" placeholder="data/posts.json" autocapitalize="off">
+          </div>
+          <div class="field">
+            <label for="ghToken">Fine-grained personal access token</label>
+            <div class="password-field-wrap">
+              <input type="password" id="ghToken" placeholder="github_pat_..." autocomplete="off">
+              <button type="button" class="password-toggle-btn" id="toggleGhToken" aria-label="Show token" aria-pressed="false">
+                <i class="fa-solid fa-eye" aria-hidden="true"></i>
+              </button>
+            </div>
+            <p class="field-hint">Stored only in this browser's local storage on this device.</p>
+          </div>
+          <button type="submit" class="btn btn-outline btn-block">Save Connection Settings</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px;font-size:15px;">Publish Log</h3>
+        <div class="publish-log" id="publishLog"><div>No publishes yet.</div></div>
       </div>
     </section>
 
-    
+    <!-- Activity -->
     <section id="screen-activity" class="screen hidden">
       <h2 class="section-title display" style="margin-bottom:14px;">Activity</h2>
       <div id="activityList"></div>
     </section>
 
-    
-    <section id="screen-customers" class="screen hidden">
-      <h2 class="section-title display" style="margin-bottom:4px;">Customers</h2>
-      <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 14px;">Everyone who has ever connected to this shop from this device, whether same-device auto-connect or a cross-device QR connect. This list lives on this owner device only.</p>
-      <div id="adminCustomerList"></div>
-    </section>
-
-    
+    <!-- Profile -->
     <section id="screen-profile" class="screen hidden">
       <div class="profile-hero">
         <div class="profile-avatar" id="profileAvatar">
@@ -758,10 +673,9 @@ button{cursor:pointer;}
       <div class="card" style="margin-bottom:14px;">
         <div class="info-row"><span>Radha Raman Fruit Shop</span><span>Owner: Rupak Ghosh</span></div>
         <div class="info-row"><span>Contact</span><a href="tel:9387361589" style="font-weight:700;color:var(--mango-dark);"><i class="fa-solid fa-phone" aria-hidden="true"></i>&nbsp; 9387361589</a></div>
+        <div class="info-row"><span>WhatsApp</span><button class="btn btn-sm btn-whatsapp" id="btnProfileWhatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>&nbsp; Message</button></div>
         <div class="info-row"><span>Today's date</span><span id="profileSessionDate">-</span></div>
-        <div class="info-row"><span>Live status</span><span id="profileLiveStatus">Offline</span></div>
-        <div class="info-row"><span>Connected customers</span><span id="profilePeerCount">0</span></div>
-        <div class="info-row"><span>App version</span><span>Version 1.0</span></div>
+        <div class="info-row"><span>App version</span><span>Version 2.0</span></div>
       </div>
 
       <div class="card" style="margin-bottom:14px;">
@@ -773,30 +687,18 @@ button{cursor:pointer;}
           <span>Install App</span>
           <button class="btn btn-sm btn-outline" id="btnInstallApp">Install</button>
         </div>
-        <div class="info-row">
-          <span>Show QR / Session</span>
-          <button class="btn btn-sm btn-outline" id="btnShowQrFullscreen">Open</button>
-        </div>
       </div>
 
       <button class="btn btn-outline btn-block" id="btnLogout" style="color:var(--watermelon-dark);border-color:var(--watermelon);">Log out</button>
 
-      <p class="footer-note">Radha Raman Fruit Shop<br>Version 1 • P2P Prototype</p>
+      <p class="footer-note">Radha Raman Fruit Shop<br>Version 2.0</p>
     </section>
 
-    
+    <!-- Customer bottom nav -->
     <nav class="bottom-nav" id="navCustomer" aria-label="Primary">
       <button class="nav-item active" data-screen="home" aria-current="page">
         <i class="fa-solid fa-house" aria-hidden="true"></i>
         Home
-      </button>
-      <button class="nav-item" data-screen="shop">
-        <i class="fa-solid fa-store" aria-hidden="true"></i>
-        Shop
-      </button>
-      <button class="nav-item" data-screen="chatlist">
-        <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
-        Chat
       </button>
       <button class="nav-item" data-screen="activity">
         <i class="fa-solid fa-chart-line" aria-hidden="true"></i>
@@ -808,7 +710,7 @@ button{cursor:pointer;}
       </button>
     </nav>
 
-    
+    <!-- Owner bottom nav -->
     <nav class="bottom-nav hidden" id="navOwner" aria-label="Primary">
       <button class="nav-item active" data-screen="home" aria-current="page">
         <i class="fa-solid fa-house" aria-hidden="true"></i>
@@ -818,17 +720,9 @@ button{cursor:pointer;}
         <i class="fa-solid fa-square-plus" aria-hidden="true"></i>
         Create
       </button>
-      <button class="nav-item" data-screen="live">
-        <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
-        Live
-      </button>
-      <button class="nav-item" data-screen="chatlist">
-        <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
-        Chat
-      </button>
-      <button class="nav-item" data-screen="customers">
-        <i class="fa-solid fa-users" aria-hidden="true"></i>
-        Customers
+      <button class="nav-item" data-screen="publish">
+        <i class="fa-brands fa-github" aria-hidden="true"></i>
+        Publish
       </button>
       <button class="nav-item" data-screen="profile">
         <i class="fa-solid fa-user" aria-hidden="true"></i>
@@ -839,1932 +733,8 @@ button{cursor:pointer;}
   </div>
 </div>
 
-
 <div id="modalHost"></div>
 
-<!-- Firebase (used ONLY as a signaling / room-discovery relay so customers on
-     separate devices can find each other and the shop automatically each day.
-     Actual posts/reactions/chat still travel peer-to-peer over WebRTC once
-     connected - Firebase never stores your shop content. -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDITvgQmUG7PvIeISBncib-7EPZqm_BLYo",
-    authDomain: "adha-raman-foodshop.firebaseapp.com",
-    databaseURL: "https://adha-raman-foodshop-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "adha-raman-foodshop",
-    storageBucket: "adha-raman-foodshop.firebasestorage.app",
-    messagingSenderId: "868006819510",
-    appId: "1:868006819510:web:daa2c78b5bde2d4c6a1817"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const fbRoot = firebase.database();
-</script>
-
-<script>
-const CONFIG = {
-  SHOP_NAME: "Radha Raman Fruit Shop",
-  OWNER_NAME: "Rupak Ghosh",
-  SHOP_PHONE: "9387361589",
-  OWNER_USERNAME: "admin",
-  OWNER_PASSWORD: "rupak123",
-  APP_URL: "YOUR_GITHUB_PAGES_URL",
-  APP_VERSION: "1.0",
-  MAX_IMAGE_DIM: 1280,
-  MAX_IMAGE_BYTES: 900 * 1024,
-  IMAGE_JPEG_QUALITY: 0.78,
-  DB_NAME: "radharaman_db",
-  DB_VERSION: 2,
-  STORES: ["posts", "reactions", "messages", "sessions", "peers", "customers"],
-  STUN_SERVERS: [
-    { urls: "stun:stun.l.google.com:19302" },
-    { urls: "stun:stun1.l.google.com:19302" },
-    { urls: "stun:global.stun.twilio.com:3478" },
-    { urls: "stun:stun.relay.metered.ca:80" },
-    { urls: "turn:asia.relay.metered.ca:80", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
-    { urls: "turn:asia.relay.metered.ca:80?transport=tcp", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
-    { urls: "turn:asia.relay.metered.ca:443", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" },
-    { urls: "turns:asia.relay.metered.ca:443?transport=tcp", username: "ae6b6cc13a0d7ad26fdba5e5", credential: "HMxOPTleNusIWzRi" }
-  ]
-};
-
-const STATE = {
-  role: null,
-  customer: null,
-  currentScreen: "home",
-  theme: "light",
-  todaySessionCode: null,
-  isLive: false,
-  posts: [],
-  activeReactionPicker: null,
-  activeChatPeerId: null,
-  db: null,
-  bc: null,
-  deferredInstallPrompt: null,
-  peers: {},
-  seenEventIds: new Set(),
-  pendingConnect: null,
-  scanStream: null
-};
-
-
-function $(sel, root) { return (root || document).querySelector(sel); }
-function $all(sel, root) { return Array.from((root || document).querySelectorAll(sel)); }
-function uid(prefix) {
-  return (prefix || "id") + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
-}
-
-
-function escapeHTML(str) {
-  if (str === null || str === undefined) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-
-function sanitizeText(str, maxLen) {
-  if (!str) return "";
-  let s = String(str).replace(/[\u0000-\u001F\u007F]/g, "").trim();
-  if (maxLen) s = s.slice(0, maxLen);
-  return s;
-}
-function toast(msg, ms) {
-  const host = $("#toastHost");
-  const el = document.createElement("div");
-  el.className = "toast";
-  el.textContent = msg;
-  host.appendChild(el);
-  setTimeout(() => el.remove(), ms || 2600);
-}
-function validateMobile(v) {
-  return /^[6-9]\d{9}$/.test(v);
-}
-
-
-
-
-
-function pad2(n) { return String(n).padStart(2, "0"); }
-
-function getTodaySessionCode(d) {
-  const date = d || new Date();
-  return pad2(date.getDate()) + pad2(date.getMonth() + 1) + date.getFullYear();
-}
-function formatDisplayDate(d) {
-  const date = d || new Date();
-  return pad2(date.getDate()) + "-" + pad2(date.getMonth() + 1) + "-" + date.getFullYear();
-}
-function formatDisplayTime(d) {
-  const date = d || new Date();
-  let h = date.getHours();
-  const m = pad2(date.getMinutes());
-  const ampm = h >= 12 ? "PM" : "AM";
-  h = h % 12; if (h === 0) h = 12;
-  return pad2(h) + ":" + m + " " + ampm;
-}
-function relativeOrTime(iso) {
-  const d = new Date(iso);
-  const diffMs = Date.now() - d.getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return mins + "m ago";
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + "h ago";
-  return formatDisplayDate(d) + " " + formatDisplayTime(d);
-}
-
-
-function watchForDayChange() {
-  setInterval(() => {
-    const fresh = getTodaySessionCode();
-    if (fresh !== STATE.todaySessionCode) {
-      STATE.todaySessionCode = fresh;
-      localStorage.setItem("rr_session_code", fresh);
-      localStorage.setItem("rr_session_code_date", formatDisplayDate());
-      renderSessionCodeEverywhere();
-      toast("A new shop day has started");
-      
-      
-      
-      closeAllPeerConnections();
-      if (STATE.role) startAutoConnect();
-    }
-  }, 30000);
-}
-
-
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(CONFIG.DB_NAME, CONFIG.DB_VERSION);
-    req.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains("posts")) {
-        const s = db.createObjectStore("posts", { keyPath: "postId" });
-        s.createIndex("createdAt", "createdAt");
-      }
-      if (db.objectStoreNames.contains("comments")) {
-        db.deleteObjectStore("comments");
-      }
-      if (!db.objectStoreNames.contains("reactions")) {
-        const s = db.createObjectStore("reactions", { keyPath: "reactionId" });
-        s.createIndex("postId", "postId");
-      }
-      if (!db.objectStoreNames.contains("messages")) {
-        const s = db.createObjectStore("messages", { keyPath: "messageId" });
-        s.createIndex("threadId", "threadId");
-      }
-      if (!db.objectStoreNames.contains("sessions")) {
-        db.createObjectStore("sessions", { keyPath: "code" });
-      }
-      if (!db.objectStoreNames.contains("peers")) {
-        db.createObjectStore("peers", { keyPath: "peerId" });
-      }
-      if (!db.objectStoreNames.contains("customers")) {
-        const s = db.createObjectStore("customers", { keyPath: "id" });
-        s.createIndex("mobile", "mobile");
-      }
-    };
-    req.onsuccess = (e) => resolve(e.target.result);
-    req.onerror = (e) => reject(e.target.error);
-  });
-}
-function dbPut(store, value) {
-  return new Promise((resolve, reject) => {
-    const tx = STATE.db.transaction(store, "readwrite");
-    tx.objectStore(store).put(value);
-    tx.oncomplete = () => resolve(value);
-    tx.onerror = (e) => reject(e.target.error);
-  });
-}
-function dbGetAll(store) {
-  return new Promise((resolve, reject) => {
-    const tx = STATE.db.transaction(store, "readonly");
-    const req = tx.objectStore(store).getAll();
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = (e) => reject(e.target.error);
-  });
-}
-function dbGet(store, key) {
-  return new Promise((resolve, reject) => {
-    const tx = STATE.db.transaction(store, "readonly");
-    const req = tx.objectStore(store).get(key);
-    req.onsuccess = () => resolve(req.result || null);
-    req.onerror = (e) => reject(e.target.error);
-  });
-}
-function dbGetByIndex(store, index, value) {
-  return new Promise((resolve, reject) => {
-    const tx = STATE.db.transaction(store, "readonly");
-    const req = tx.objectStore(store).index(index).getAll(value);
-    req.onsuccess = () => resolve(req.result || []);
-    req.onerror = (e) => reject(e.target.error);
-  });
-}
-
-
-function restoreSession() {
-  const role = localStorage.getItem("rr_role");
-  if (role === "owner") {
-    STATE.role = "owner";
-    enterApp();
-  } else if (role === "customer") {
-    const raw = localStorage.getItem("rr_customer");
-    if (raw) {
-      try { STATE.customer = JSON.parse(raw); } catch (e) { STATE.customer = null; }
-    }
-    if (STATE.customer && STATE.customer.mobile) {
-      STATE.role = "customer";
-      enterApp();
-    } else {
-      showScreenGroup("entry");
-    }
-  } else {
-    showScreenGroup("entry");
-  }
-}
-function loginOwner(username, password) {
-  
-  
-  if (username === CONFIG.OWNER_USERNAME && password === CONFIG.OWNER_PASSWORD) {
-    STATE.role = "owner";
-    localStorage.setItem("rr_role", "owner");
-    enterApp();
-    return true;
-  }
-  return false;
-}
-function loginCustomer(mobile, name) {
-  const customer = {
-    id: localStorage.getItem("rr_customer_id") || uid("cust"),
-    mobile: mobile,
-    name: name || "Guest",
-    joinedAt: new Date().toISOString()
-  };
-  localStorage.setItem("rr_customer_id", customer.id);
-  localStorage.setItem("rr_role", "customer");
-  localStorage.setItem("rr_customer", JSON.stringify(customer));
-  STATE.role = "customer";
-  STATE.customer = customer;
-  enterApp();
-}
-function logout() {
-  closeAllPeerConnections();
-  localStorage.removeItem("rr_role");
-  
-  
-  
-  
-  STATE.role = null;
-  STATE.customer = null;
-  $("#mainApp").classList.add("hidden");
-  showScreenGroup("entry");
-  toast("Logged out");
-}
-
-
-async function loadPostsFromDB() {
-  const all = await dbGetAll("posts");
-  all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  STATE.posts = all;
-  return all;
-}
-
-
-function compressImage(file) {
-  return new Promise((resolve, reject) => {
-    if (!file.type || !file.type.startsWith("image/")) {
-      reject(new Error("Please choose a valid image file."));
-      return;
-    }
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = (e) => { img.src = e.target.result; };
-    reader.onerror = () => reject(new Error("Could not read the image file."));
-    img.onload = () => {
-      let { width, height } = img;
-      const maxDim = CONFIG.MAX_IMAGE_DIM;
-      if (width > maxDim || height > maxDim) {
-        if (width > height) { height = Math.round(height * (maxDim / width)); width = maxDim; }
-        else { width = Math.round(width * (maxDim / height)); height = maxDim; }
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, width, height);
-      const dataUrl = canvas.toDataURL("image/jpeg", CONFIG.IMAGE_JPEG_QUALITY);
-      resolve(dataUrl);
-    };
-    img.onerror = () => reject(new Error("Could not load the image."));
-    reader.readAsDataURL(file);
-  });
-}
-async function createPost({ imageData, caption, category }) {
-  const now = new Date();
-  const post = {
-    postId: uid("post"),
-    shopId: "radharaman",
-    author: CONFIG.OWNER_NAME,
-    imageData: imageData,
-    caption: sanitizeText(caption, 600),
-    category: category || "",
-    createdAt: now.toISOString(),
-    updatedAt: now.toISOString(),
-    date: formatDisplayDate(now),
-    time: formatDisplayTime(now),
-    status: "published"
-  };
-  await dbPut("posts", post);
-  await loadPostsFromDB();
-  renderFeed();
-  broadcastLocal({ type: "post:new", payload: post });
-  broadcastToPeers({ type: "post:new", payload: post, eventId: uid("evt") });
-  return post;
-}
-
-
-async function ingestRemotePost(post) {
-  const existing = await dbGet("posts", post.postId);
-  if (existing) return false;
-  await dbPut("posts", post);
-  await loadPostsFromDB();
-  renderFeed();
-  return true;
-}
-
-
-
-
-async function deletePost(postId) {
-  if (STATE.role !== "owner") return false;
-  await dbDelete("posts", postId);
-  const relatedReactions = await dbGetByIndex("reactions", "postId", postId);
-  for (const r of relatedReactions) await dbDelete("reactions", r.reactionId);
-  await loadPostsFromDB();
-  renderFeed();
-  broadcastLocal({ type: "post:delete", payload: { postId } });
-  broadcastToPeers({ type: "post:delete", payload: { postId }, eventId: uid("evt") });
-  return true;
-}
-async function ingestRemotePostDeletion(postId) {
-  const existing = await dbGet("posts", postId);
-  if (!existing) return false;
-  await dbDelete("posts", postId);
-  const relatedReactions = await dbGetByIndex("reactions", "postId", postId);
-  for (const r of relatedReactions) await dbDelete("reactions", r.reactionId);
-  await loadPostsFromDB();
-  renderFeed();
-  return true;
-}
-
-
-const REACTIONS = {
-  like:      { emoji: "\u2764\ufe0f", color: "var(--watermelon)", label: "Like" },
-  thumbsup:  { emoji: "\ud83d\udc4d", color: "var(--blueberry)",  label: "Thumbs up" },
-  love:      { emoji: "\ud83e\udd70", color: "var(--grape)",      label: "Love it" },
-  laugh:     { emoji: "\ud83d\ude02", color: "var(--banana-dark)", label: "Funny" },
-  wow:       { emoji: "\ud83d\ude2e", color: "var(--mango)",      label: "Wow" },
-  sad:       { emoji: "\ud83d\ude22", color: "var(--kiwi-dark)",  label: "Sad" }
-};
-async function toggleReaction(postId, type) {
-  const actorId = STATE.role === "owner" ? "owner" : (STATE.customer ? STATE.customer.id : "guest");
-  const all = await dbGetByIndex("reactions", "postId", postId);
-  const mine = all.find(r => r.actorId === actorId);
-  let reaction;
-  if (mine && mine.type === type) {
-    
-    await dbDelete("reactions", mine.reactionId);
-    renderFeed();
-    broadcastLocal({ type: "reaction:remove", payload: { postId, actorId } });
-    broadcastToPeers({ type: "reaction:remove", payload: { postId, actorId }, eventId: uid("evt") });
-    return null;
-  }
-  if (mine) {
-    mine.type = type; mine.createdAt = new Date().toISOString();
-    reaction = mine;
-  } else {
-    reaction = { reactionId: uid("rxn"), postId, actorId, type, createdAt: new Date().toISOString() };
-  }
-  await dbPut("reactions", reaction);
-  renderFeed();
-  broadcastLocal({ type: "reaction:new", payload: reaction });
-  broadcastToPeers({ type: "reaction:new", payload: reaction, eventId: uid("evt") });
-  return reaction;
-}
-function dbDelete(store, key) {
-  return new Promise((resolve, reject) => {
-    const tx = STATE.db.transaction(store, "readwrite");
-    tx.objectStore(store).delete(key);
-    tx.oncomplete = () => resolve(true);
-    tx.onerror = (e) => reject(e.target.error);
-  });
-}
-async function ingestRemoteReaction(reaction) {
-  const existing = await dbGetByIndex("reactions", "postId", reaction.postId);
-  const dupe = existing.find(r => r.actorId === reaction.actorId && r.reactionId === reaction.reactionId);
-  if (dupe) return false;
-  
-  const sameActor = existing.find(r => r.actorId === reaction.actorId);
-  if (sameActor) await dbDelete("reactions", sameActor.reactionId);
-  await dbPut("reactions", reaction);
-  renderFeed();
-  return true;
-}
-async function ingestRemoteReactionRemoval(postId, actorId) {
-  const existing = await dbGetByIndex("reactions", "postId", postId);
-  const mine = existing.find(r => r.actorId === actorId);
-  if (mine) { await dbDelete("reactions", mine.reactionId); renderFeed(); }
-}
-async function getReactionsForPost(postId) {
-  return dbGetByIndex("reactions", "postId", postId);
-}
-
-
-function threadIdFor(peerId) {
-  
-  
-  return "thread_" + peerId;
-}
-async function sendChatMessage(peerId, text, peerDisplayName) {
-  const clean = sanitizeText(text, 500);
-  if (!clean) return null;
-  const msg = {
-    messageId: uid("msg"),
-    threadId: threadIdFor(peerId),
-    peerId,
-    fromRole: STATE.role,
-    fromName: STATE.role === "owner" ? CONFIG.OWNER_NAME : (STATE.customer ? STATE.customer.name : "Guest"),
-    text: clean,
-    createdAt: new Date().toISOString(),
-    direction: "out",
-    status: "queued"
-  };
-  await dbPut("messages", msg);
-  const sent = sendToPeer(peerId, { type: "chat:message", payload: msg });
-  if (sent) { msg.status = "sent"; await dbPut("messages", msg); }
-  renderChatThread(peerId);
-  renderChatList();
-  return msg;
-}
-async function ingestRemoteChatMessage(msg) {
-  const existing = await dbGet("messages", msg.messageId);
-  if (existing) return false;
-  const incoming = Object.assign({}, msg, { direction: "in", status: "received" });
-  await dbPut("messages", incoming);
-  renderChatThread(msg.peerId);
-  renderChatList();
-  if (STATE.currentScreen !== "chatthread" || STATE.activeChatPeerId !== msg.peerId) {
-    toast("New message from " + escapeHTML(msg.fromName || "peer"));
-  }
-  return true;
-}
-async function getMessagesForThread(peerId) {
-  const list = await dbGetByIndex("messages", "threadId", threadIdFor(peerId));
-  list.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  return list;
-}
-async function getAllThreadsSummary() {
-  const all = await dbGetAll("messages");
-  const byPeer = {};
-  all.forEach(m => {
-    if (!byPeer[m.peerId] || new Date(m.createdAt) > new Date(byPeer[m.peerId].createdAt)) {
-      byPeer[m.peerId] = m;
-    }
-  });
-  return Object.values(byPeer).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-
-
-function createPeerConnection(peerId, isInitiator) {
-  const pc = new RTCPeerConnection({ iceServers: CONFIG.STUN_SERVERS });
-  const entry = { conn: pc, dc: null, peerId, status: "connecting", isInitiator, name: "Peer" };
-  STATE.peers[peerId] = entry;
-
-  pc.onconnectionstatechange = () => {
-    if (!STATE.peers[peerId]) return;
-    STATE.peers[peerId].status = pc.connectionState;
-    renderPeerLists();
-    if (pc.connectionState === "connected") {
-      toast("Connected to " + entry.name);
-      flushQueuedMessages(peerId);
-    }
-    if (["disconnected", "failed", "closed"].includes(pc.connectionState)) {
-      renderPeerLists();
-      if (pc.connectionState === "failed" && isInitiator && STATE.role === "owner") {
-        setTimeout(() => {
-          if (STATE.peers[peerId] && STATE.peers[peerId].conn === pc && pc.connectionState === "failed") {
-            closePeerConnection(peerId);
-            ownerAutoOffer(peerId, entry.name);
-          }
-        }, 3000);
-      }
-    }
-  };
-  
-  
-  
-
-  function attachChannel(dc) {
-    entry.dc = dc;
-    dc.onopen = () => {
-      entry.status = "connected";
-      renderPeerLists();
-      toast("Connected to " + entry.name);
-      sendMyProfileTo(peerId);
-    };
-    dc.onclose = () => { entry.status = "closed"; renderPeerLists(); };
-    dc.onmessage = (ev) => {
-      try {
-        const msg = JSON.parse(ev.data);
-        handlePeerMessage(peerId, msg);
-      } catch (e) {  }
-    };
-  }
-
-  if (isInitiator) {
-    const dc = pc.createDataChannel("radharaman");
-    attachChannel(dc);
-  } else {
-    pc.ondatachannel = (ev) => attachChannel(ev.channel);
-  }
-
-  return { pc, entry };
-}
-
-
-/* ===================== CROSS-DEVICE SIGNALING (Firebase Realtime DB) =====================
-   Firebase is used ONLY as a "phone book" so devices can find each other and
-   exchange the WebRTC handshake (offer/answer/ICE candidates) automatically.
-   Once connected, all real content (posts, reactions, chat) flows directly
-   peer-to-peer over the WebRTC data channel, same as before - Firebase never
-   sees or stores any of that. Each day's room auto-expires via the session
-   code already used elsewhere in this app (getTodaySessionCode). */
-function signalSend(msg) {
-  if (!STATE._localPeerId || !STATE.todaySessionCode) return;
-  try {
-    const ref = fbRoot.ref("rooms/" + STATE.todaySessionCode + "/signals").push();
-    ref.set(Object.assign({ ts: firebase.database.ServerValue.TIMESTAMP }, msg))
-      .then(() => { ref.onDisconnect().remove(); setTimeout(() => ref.remove(), 30000); });
-  } catch (e) {}
-}
-async function startAutoConnect() {
-  STATE._localPeerId = STATE._localPeerId || uid("peer");
-  const sessionCode = STATE.todaySessionCode;
-  const signalsRef = fbRoot.ref("rooms/" + sessionCode + "/signals");
-
-  if (STATE._signalsRef) { try { STATE._signalsRef.off(); } catch (e) {} }
-  STATE._signalsRef = signalsRef;
-  STATE._seenSignalKeys = STATE._seenSignalKeys || new Set();
-
-  signalsRef.on("child_added", async (snap) => {
-    const data = snap.val();
-    const key = snap.key;
-    if (!data || STATE._seenSignalKeys.has(key)) return;
-    STATE._seenSignalKeys.add(key);
-    try {
-      if (data.kind === "announce" && STATE.role === "owner" && data.from !== STATE._localPeerId) {
-        await ownerAutoOffer(data.from, data.name);
-      }
-      else if (data.kind === "offer" && data.to === STATE._localPeerId) {
-        await customerAutoAnswer(data.from, data.ownerName, data.sdp);
-      }
-      else if (data.kind === "answer" && data.to === STATE._localPeerId) {
-        const entry = STATE.peers[data.from];
-        if (entry && entry.conn.signalingState !== "stable") { await entry.conn.setRemoteDescription(data.sdp); }
-      }
-      else if (data.kind === "candidate" && data.to === STATE._localPeerId && STATE.peers[data.from]) {
-        try { await STATE.peers[data.from].conn.addIceCandidate(data.candidate); } catch (e) {}
-      }
-    } catch (e) {}
-  });
-
-  if (STATE.role === "customer") {
-    signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
-    STATE._announceTimer && clearInterval(STATE._announceTimer);
-    STATE._announceTimer = setInterval(() => {
-      if (connectedPeerCount() === 0) {
-        signalSend({ kind: "announce", from: STATE._localPeerId, name: STATE.customer ? STATE.customer.name : "Guest" });
-      }
-    }, 8000);
-  }
-}
-
-
-async function ownerAutoOffer(customerPeerId, customerName) {
-  if (STATE.peers[customerPeerId]) return; 
-  const { pc, entry } = createPeerConnection(customerPeerId, true);
-  entry.name = sanitizeText(customerName, 40) || "Customer";
-  pc.onicecandidate = (ev) => {
-    if (ev.candidate) signalSend({ kind: "candidate", to: customerPeerId, from: STATE._localPeerId, candidate: ev.candidate });
-  };
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  signalSend({ kind: "offer", to: customerPeerId, from: STATE._localPeerId, ownerName: CONFIG.SHOP_NAME, sdp: pc.localDescription });
-  await dbPut("peers", { peerId: customerPeerId, name: entry.name, lastSeen: new Date().toISOString() });
-  renderPeerLists();
-  renderChatList();
-}
-
-
-
-async function customerAutoAnswer(ownerPeerId, ownerName, offerSdp) {
-  if (STATE.peers[ownerPeerId]) return;
-  const { pc, entry } = createPeerConnection(ownerPeerId, false);
-  entry.name = sanitizeText(ownerName, 40) || CONFIG.SHOP_NAME;
-  pc.onicecandidate = (ev) => {
-    if (ev.candidate) signalSend({ kind: "candidate", to: ownerPeerId, from: STATE._localPeerId, candidate: ev.candidate });
-  };
-  await pc.setRemoteDescription(offerSdp);
-  const answer = await pc.createAnswer();
-  await pc.setLocalDescription(answer);
-  signalSend({ kind: "answer", to: ownerPeerId, from: STATE._localPeerId, sdp: pc.localDescription });
-  renderShopConnectScreen();
-  renderChatList();
-}
-function sendToPeer(peerId, obj) {
-  const entry = STATE.peers[peerId];
-  if (entry && entry.dc && entry.dc.readyState === "open") {
-    entry.dc.send(JSON.stringify(obj));
-    return true;
-  }
-  return false;
-}
-function broadcastToPeers(obj) {
-  const id = obj.eventId;
-  if (id) {
-    if (STATE.seenEventIds.has(id)) return;
-    STATE.seenEventIds.add(id);
-  }
-  Object.keys(STATE.peers).forEach(peerId => sendToPeer(peerId, obj));
-}
-async function flushQueuedMessages(peerId) {
-  const all = await dbGetByIndex("messages", "threadId", threadIdFor(peerId));
-  const queued = all.filter(m => m.direction === "out" && m.status === "queued");
-  for (const m of queued) {
-    if (sendToPeer(peerId, { type: "chat:message", payload: m })) {
-      m.status = "sent";
-      await dbPut("messages", m);
-    }
-  }
-  renderChatThread(peerId);
-}
-function handlePeerMessage(peerId, msg) {
-  if (msg.eventId) {
-    if (STATE.seenEventIds.has(msg.eventId)) return;
-    STATE.seenEventIds.add(msg.eventId);
-  }
-  switch (msg.type) {
-    case "post:new": ingestRemotePost(msg.payload); break;
-    case "post:delete": ingestRemotePostDeletion(msg.payload.postId); break;
-    case "reaction:new": ingestRemoteReaction(msg.payload); break;
-    case "reaction:remove": ingestRemoteReactionRemoval(msg.payload.postId, msg.payload.actorId); break;
-    case "chat:message": ingestRemoteChatMessage(Object.assign({}, msg.payload, { peerId })); break;
-    case "sync:request": handleSyncRequest(peerId); break;
-    case "customer:profile": ingestCustomerProfile(peerId, msg.payload); break;
-    default: break;
-  }
-}
-
-
-async function handleSyncRequest(peerId) {
-  if (STATE.role !== "owner") return;
-  const posts = await dbGetAll("posts");
-  posts.forEach(p => sendToPeer(peerId, { type: "post:new", payload: p, eventId: uid("evt") }));
-}
-// Owner-only: persists every customer profile it has ever seen to a
-// dedicated, permanent "customers" store, so the shop owner has a
-// standing record of everyone who has connected - not just whoever
-// happens to be connected right now. This is real data that stays
-// on the owner's own device (there is still no shared server), so
-// it reflects every customer this specific owner device has ever
-// synced with, across all past sessions.
-async function ingestCustomerProfile(peerId, profile) {
-  if (STATE.role !== "owner" || !profile || !profile.id) return;
-  const existing = await dbGet("customers", profile.id);
-  const record = {
-    id: profile.id,
-    mobile: sanitizeText(profile.mobile, 20),
-    name: sanitizeText(profile.name, 40) || "Guest",
-    firstSeenAt: (existing && existing.firstSeenAt) || profile.joinedAt || new Date().toISOString(),
-    lastSeenAt: new Date().toISOString(),
-    peerId
-  };
-  await dbPut("customers", record);
-  renderAdminCustomers();
-}
-// Sent by a customer immediately once a data channel opens to any
-// peer, so the shop owner's device can record who connected.
-function sendMyProfileTo(peerId) {
-  if (STATE.role !== "customer" || !STATE.customer) return;
-  sendToPeer(peerId, { type: "customer:profile", payload: STATE.customer });
-}
-
-/* ===================== CROSS-DEVICE P2P (manual QR/text signaling) =====================
-   Two different physical phones cannot discover each other over
-   BroadcastChannel - that only works between tabs on the SAME
-   device. To open a REAL WebRTC connection between two separate
-   devices without any backend server, one side's connection details
-   (an SDP offer, after ICE gathering completes) must reach the other
-   side through some out-of-band channel. Here that channel is a QR
-   code (scanned with the camera) with a manual copy/share fallback
-   for when scanning isn't available. This is a genuine, standard
-   WebRTC handshake - only the delivery of the offer/answer blob is
-   manual instead of automatic, exactly as manual signaling always
-   works for serverless WebRTC apps. Once connected, all sync (posts,
-   reactions, chat, customer profile) flows over the real P2P
-   DataChannel, live, with no server involved. */
-
-function waitForIceGatheringComplete(pc, timeoutMs) {
-  if (pc.iceGatheringState === "complete") return Promise.resolve();
-  return new Promise((resolve) => {
-    let done = false;
-    const finish = () => { if (done) return; done = true; pc.removeEventListener("icegatheringstatechange", check); resolve(); };
-    function check() { if (pc.iceGatheringState === "complete") finish(); }
-    pc.addEventListener("icegatheringstatechange", check);
-    setTimeout(finish, timeoutMs || 4000);
-  });
-}
-// Packs an RTCSessionDescription down to the minimum needed to
-// reconstruct it, so the resulting text/QR payload is as small as
-// possible (full SDP text can run several KB with all ICE
-// candidates; this keeps only what's required).
-function packDescription(desc) {
-  return { t: desc.type, s: desc.sdp };
-}
-function encodeConnectBlob(obj) {
-  const json = JSON.stringify(obj);
-  return "RRCONNECT1:" + btoa(unescape(encodeURIComponent(json)));
-}
-function decodeConnectBlob(text) {
-  const clean = String(text || "").trim();
-  const prefix = "RRCONNECT1:";
-  if (!clean.startsWith(prefix)) throw new Error("Not a valid connect code.");
-  const json = decodeURIComponent(escape(atob(clean.slice(prefix.length))));
-  return JSON.parse(json);
-}
-// OWNER SIDE: generates a one-time connect offer for a customer on a
-// separate device, shown as a QR code (and as copyable/shareable
-// text for when scanning isn't convenient).
-async function startDeviceConnect() {
-  const peerId = uid("dev");
-  const { pc, entry } = createPeerConnection(peerId, true);
-  entry.name = "Customer";
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  await waitForIceGatheringComplete(pc, 4000);
-  const blob = encodeConnectBlob({ role: "offer", peerId, ownerName: CONFIG.SHOP_NAME, desc: packDescription(pc.localDescription) });
-  const fitsQr = QR.canEncode(blob);
-  STATE.pendingConnect = { peerId, pc };
-  openModal("Connect a Customer's Device", `
-    <div style="text-align:center;">
-      <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">${fitsQr ? "Ask the customer to open <b>Shop &gt; Scan Shop's Connect QR</b> on their own phone and scan this code." : "This connect code is a bit long for a QR code on this network. Share or copy it to the customer instead - they'll paste it into <b>Shop &gt; Scan Shop's Connect QR</b>."} This opens a real direct connection between your two devices.</p>
-      ${fitsQr ? `<div id="deviceConnectQrWrap"><canvas id="deviceConnectQrCanvas" role="img" aria-label="Connect QR code"></canvas></div>` : ""}
-      <p style="font-size:11.5px;color:var(--ink-soft);margin:10px 0 0;">${fitsQr ? "Can't scan right now? Share or copy the connect code instead." : ""}</p>
-      <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn btn-outline btn-block" id="btnCopyConnectCode" type="button">Copy Code</button>
-        <button class="btn btn-outline btn-block" id="btnShareConnectCode" type="button">Share</button>
-      </div>
-      <p id="deviceConnectStatus" style="font-size:12px;color:var(--ink-soft);margin-top:14px;">Waiting for the customer to connect...</p>
-      <button class="btn btn-block" id="btnScanCustomerAnswer" type="button" style="margin-top:10px;background:var(--kiwi);color:#fff;">
-        <i class="fa-solid fa-camera" aria-hidden="true"></i>&nbsp; Scan/Paste Customer's Reply Code
-      </button>
-    </div>`, (body) => {
-    if (fitsQr) QR.renderToCanvas(body.querySelector("#deviceConnectQrCanvas"), blob, 240);
-    body.querySelector("#btnCopyConnectCode").addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(blob); toast("Connect code copied"); }
-      catch (e) { toast("Couldn't copy - long-press the QR image instead."); }
-    });
-    body.querySelector("#btnShareConnectCode").addEventListener("click", async () => {
-      if (navigator.share) { try { await navigator.share({ title: CONFIG.SHOP_NAME + " connect code", text: blob }); } catch (e) {} }
-      else { toast("Sharing isn't available in this browser - use Copy Code instead."); }
-    });
-    body.querySelector("#btnScanCustomerAnswer").addEventListener("click", () => {
-      openQrScanner((code) => { finishDeviceConnectWithAnswer(code); }, "Scan the Customer's Reply Code");
-    });
-  });
-  pc.onconnectionstatechange = (() => {
-    const original = pc.onconnectionstatechange;
-    return () => {
-      if (original) original();
-      const statusEl = $("#deviceConnectStatus");
-      if (statusEl && pc.connectionState === "connected") {
-        statusEl.textContent = "Connected! You can close this window.";
-      }
-    };
-  })();
-}
-// Owner side, step 2: once the customer scans the offer and shows
-// their own answer QR, the owner scans/pastes that back in to
-// complete the handshake.
-async function finishDeviceConnectWithAnswer(answerBlobText) {
-  if (!STATE.pendingConnect) { toast("Start a new connect from the Live screen first."); return; }
-  try {
-    const parsed = decodeConnectBlob(answerBlobText);
-    if (parsed.role !== "answer" || parsed.peerId !== STATE.pendingConnect.peerId) {
-      toast("That code doesn't match this connect session.");
-      return;
-    }
-    const pc = STATE.pendingConnect.pc;
-    await pc.setRemoteDescription({ type: parsed.desc.t, sdp: parsed.desc.s });
-    closeModal();
-    STATE.pendingConnect = null;
-  } catch (e) {
-    toast("That code could not be read - please try scanning again.");
-  }
-}
-// CUSTOMER SIDE: scans (or pastes) the shop owner's offer QR,
-// creates a real WebRTC answer, and shows it back as a QR/text for
-// the owner to scan in to complete the connection.
-async function connectToDeviceWithOffer(offerBlobText) {
-  try {
-    const parsed = decodeConnectBlob(offerBlobText);
-    if (parsed.role !== "offer") { toast("That doesn't look like a shop connect code."); return; }
-    const { pc, entry } = createPeerConnection(parsed.peerId, false);
-    entry.name = sanitizeText(parsed.ownerName, 40) || CONFIG.SHOP_NAME;
-    await pc.setRemoteDescription({ type: parsed.desc.t, sdp: parsed.desc.s });
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    await waitForIceGatheringComplete(pc, 4000);
-    const answerBlob = encodeConnectBlob({ role: "answer", peerId: parsed.peerId, desc: packDescription(pc.localDescription) });
-    const fitsQr = QR.canEncode(answerBlob);
-    openModal("Show This Back to the Shop", `
-      <div style="text-align:center;">
-        <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">${fitsQr ? "Show this code to the shop owner to scan, or share/copy it to them." : "This reply code is a bit long for a QR on this network - share or copy it to the shop owner instead."} This completes the connection.</p>
-        ${fitsQr ? `<div id="answerQrWrap"><canvas id="answerQrCanvas" role="img" aria-label="Answer QR code"></canvas></div>` : ""}
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="btn btn-outline btn-block" id="btnCopyAnswerCode" type="button">Copy Code</button>
-          <button class="btn btn-outline btn-block" id="btnShareAnswerCode" type="button">Share</button>
-        </div>
-      </div>`, (body) => {
-      if (fitsQr) QR.renderToCanvas(body.querySelector("#answerQrCanvas"), answerBlob, 240);
-      body.querySelector("#btnCopyAnswerCode").addEventListener("click", async () => {
-        try { await navigator.clipboard.writeText(answerBlob); toast("Answer code copied"); }
-        catch (e) { toast("Couldn't copy - long-press the QR image instead."); }
-      });
-      body.querySelector("#btnShareAnswerCode").addEventListener("click", async () => {
-        if (navigator.share) { try { await navigator.share({ title: "Connect answer", text: answerBlob }); } catch (e) {} }
-        else { toast("Sharing isn't available in this browser - use Copy Code instead."); }
-      });
-    });
-    renderShopConnectScreen();
-  } catch (e) {
-    toast("That code could not be read - please try scanning again.");
-  }
-}
-// Native camera-based QR scanning using BarcodeDetector where
-// available (Chrome/Edge/Android). Falls back to a manual paste box
-// on browsers without it (e.g. some iOS Safari versions), so scanning
-// a device connect code always has a working path either way.
-async function openQrScanner(onResult, titleText) {
-  const hasDetector = "BarcodeDetector" in window;
-  openModal(titleText || "Scan QR Code", `
-    <div style="text-align:center;">
-      ${hasDetector ? `
-        <video id="qrScanVideo" playsinline autoplay muted style="width:100%;border-radius:12px;background:#000;"></video>
-        <p style="font-size:12px;color:var(--ink-soft);margin:10px 0 0;">Point your camera at the QR code.</p>
-      ` : `<p style="font-size:13px;color:var(--ink-soft);margin-top:0;">Live camera scanning isn't supported in this browser. Paste the connect code you were sent instead.</p>`}
-      <div style="margin-top:12px;">
-        <textarea id="qrManualInput" rows="3" placeholder="Or paste the connect code here" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px;font-size:13px;font-family:monospace;background:var(--paper);color:var(--ink);"></textarea>
-        <button class="btn btn-block" id="btnSubmitManualCode" type="button" style="margin-top:8px;">Use This Code</button>
-      </div>
-    </div>`, async (body) => {
-    body.querySelector("#btnSubmitManualCode").addEventListener("click", () => {
-      const val = body.querySelector("#qrManualInput").value.trim();
-      if (!val) { toast("Paste a connect code first."); return; }
-      closeModal();
-      stopQrScanStream();
-      onResult(val);
-    });
-    if (hasDetector) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        STATE.scanStream = stream;
-        const video = body.querySelector("#qrScanVideo");
-        video.srcObject = stream;
-        const detector = new BarcodeDetector({ formats: ["qr_code"] });
-        let stopped = false;
-        (async function scanLoop() {
-          while (!stopped && STATE.scanStream === stream) {
-            try {
-              const codes = await detector.detect(video);
-              if (codes && codes.length) {
-                stopped = true;
-                closeModal();
-                stopQrScanStream();
-                onResult(codes[0].rawValue);
-                return;
-              }
-            } catch (e) {}
-            await new Promise(r => setTimeout(r, 350));
-          }
-        })();
-      } catch (e) {
-        toast("Camera access wasn't available - paste the code instead.");
-      }
-    }
-  });
-}
-function stopQrScanStream() {
-  if (STATE.scanStream) {
-    try { STATE.scanStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-    STATE.scanStream = null;
-  }
-}
-function closePeerConnection(peerId) {
-  const entry = STATE.peers[peerId];
-  if (!entry) return;
-  try { entry.dc && entry.dc.close(); entry.conn && entry.conn.close(); } catch (e) {}
-  delete STATE.peers[peerId];
-  renderPeerLists();
-}
-function closeAllPeerConnections() {
-  Object.values(STATE.peers).forEach(entry => {
-    try { entry.dc && entry.dc.close(); entry.conn && entry.conn.close(); } catch (e) {}
-  });
-  STATE.peers = {};
-  if (STATE._announceTimer) { clearInterval(STATE._announceTimer); STATE._announceTimer = null; }
-  if (STATE.signalChannel) { try { STATE.signalChannel.close(); } catch (e) {} STATE.signalChannel = null; }
-  STATE.pendingConnect = null;
-  stopQrScanStream();
-}
-function connectedPeerCount() {
-  return Object.values(STATE.peers).filter(p => p.status === "connected").length;
-}
-
-
-function initBroadcastChannel() {
-  if (!("BroadcastChannel" in window)) return;
-  STATE.bc = new BroadcastChannel("radharaman_local");
-  STATE.bc.onmessage = (ev) => {
-    const msg = ev.data;
-    if (!msg || !msg.type) return;
-    if (msg.type === "post:new") ingestRemotePost(msg.payload);
-    if (msg.type === "post:delete") ingestRemotePostDeletion(msg.payload.postId);
-    if (msg.type === "reaction:new") ingestRemoteReaction(msg.payload);
-    if (msg.type === "reaction:remove") ingestRemoteReactionRemoval(msg.payload.postId, msg.payload.actorId);
-  };
-}
-function broadcastLocal(msg) {
-  if (STATE.bc) { try { STATE.bc.postMessage(msg); } catch (e) {} }
-}
-
-
-const QR = (function () {
-  
-  
-  function QR8bitByte(data) { this.data = data; this.mode = 4; this.parsedData = []; for (let i = 0; i < data.length; i++) { let b = data.charCodeAt(i); if (b > 127) { const enc = unescape(encodeURIComponent(data[i])); for (let j = 0; j < enc.length; j++) this.parsedData.push(enc.charCodeAt(j)); } else this.parsedData.push(b); } }
-  QR8bitByte.prototype.getLength = function () { return this.parsedData.length; };
-  QR8bitByte.prototype.write = function (buffer) { for (let i = 0; i < this.parsedData.length; i++) buffer.put(this.parsedData[i], 8); };
-  function BitBuffer() { this.buffer = []; this.length = 0; }
-  BitBuffer.prototype = { get: function (i) { const b = Math.floor(i / 8); return ((this.buffer[b] >>> (7 - i % 8)) & 1) === 1; }, put: function (num, len) { for (let i = 0; i < len; i++) this.putBit(((num >>> (len - i - 1)) & 1) === 1); }, putBit: function (bit) { const b = Math.floor(this.length / 8); if (this.buffer.length <= b) this.buffer.push(0); if (bit) this.buffer[b] |= (0x80 >>> (this.length % 8)); this.length++; } };
-  const EC_L = 1;
-  const G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | 1, G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | 1, G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
-  function getBCHDigit(d) { let digit = 0; while (d !== 0) { digit++; d >>>= 1; } return digit; }
-  function getBCHTypeInfo(data) { let d = data << 10; while (getBCHDigit(d) - getBCHDigit(G15) >= 0) d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15))); return ((data << 10) | d) ^ G15_MASK; }
-  const RS_EXP = [], RS_LOG = [];
-  for (let i = 0; i < 8; i++) RS_EXP[i] = 1 << i;
-  for (let i = 8; i < 256; i++) RS_EXP[i] = RS_EXP[i - 4] ^ RS_EXP[i - 5] ^ RS_EXP[i - 6] ^ RS_EXP[i - 8];
-  for (let i = 0; i < 255; i++) RS_LOG[RS_EXP[i]] = i;
-  function gexp(n) { while (n < 0) n += 255; while (n >= 256) n -= 255; return RS_EXP[n]; }
-  function glog(n) { return RS_LOG[n]; }
-  function Polynomial(num, shift) { let offset = 0; while (offset < num.length && num[offset] === 0) offset++; this.num = new Array(num.length - offset + shift); for (let i = 0; i < num.length - offset; i++) this.num[i] = num[i + offset]; for (let i = 0; i < shift; i++) this.num[num.length - offset + i] = 0; }
-  Polynomial.prototype = { get: function (i) { return this.num[i]; }, getLength: function () { return this.num.length; }, multiply: function (e) { const n = new Array(this.getLength() + e.getLength() - 1).fill(0); for (let i = 0; i < this.getLength(); i++) for (let j = 0; j < e.getLength(); j++) n[i + j] ^= gexp(glog(this.get(i)) + glog(e.get(j))); return new Polynomial(n, 0); }, mod: function (e) { if (this.getLength() - e.getLength() < 0) return this; const ratio = glog(this.get(0)) - glog(e.get(0)); const n = this.num.slice(); for (let i = 0; i < e.getLength(); i++) n[i] ^= gexp(glog(e.get(i)) + ratio); return new Polynomial(n, 0).mod(e); } };
-  function getErrorCorrectPolynomial(len) { let a = new Polynomial([1], 0); for (let i = 0; i < len; i++) a = a.multiply(new Polynomial([1, gexp(i)], 0)); return a; }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const CHAR_CAP = [0, 17, 32, 53, 78, 106, 134, 154, 192, 230, 271];
-  const DATA_CODEWORDS = [0, 19, 34, 55, 80, 108, 136, 156, 194, 232, 274];
-  
-  
-  const EC_CODEWORDS_PER_BLOCK = [0, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18];
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  const BLOCK_LAYOUT = [
-    null,
-    [1, 19, 0, 0], [1, 34, 0, 0], [1, 55, 0, 0], [1, 80, 0, 0], [1, 108, 0, 0],
-    [2, 68, 0, 0], [2, 78, 0, 0], [2, 97, 0, 0], [2, 116, 0, 0], [2, 68, 2, 69]
-  ];
-  function chooseVersion(len) { for (let v = 1; v <= 10; v++) if (CHAR_CAP[v] >= len) return v; return 10; }
-  const ALIGN_PATTERNS = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34], 7: [6, 22, 38], 8: [6, 24, 42], 9: [6, 26, 46], 10: [6, 28, 50] };
-  function QRCode(typeNumber, data) {
-    this.typeNumber = typeNumber; this.errorCorrectLevel = EC_L; this.modules = null; this.moduleCount = 0; this.dataCache = null; this.dataList = [new QR8bitByte(data)];
-  }
-  QRCode.prototype = {
-    makeImpl: function (test, maskPattern) {
-      this.moduleCount = this.typeNumber * 4 + 17;
-      this.modules = new Array(this.moduleCount);
-      for (let row = 0; row < this.moduleCount; row++) { this.modules[row] = new Array(this.moduleCount).fill(null); }
-      this.setupPositionProbePattern(0, 0); this.setupPositionProbePattern(this.moduleCount - 7, 0); this.setupPositionProbePattern(0, this.moduleCount - 7);
-      this.setupPositionAdjustPattern(); this.setupTimingPattern(); this.setupTypeInfo(test, maskPattern);
-      if (this.typeNumber >= 7) this.setupTypeNumber(test);
-      if (this.dataCache == null) this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
-      this.mapData(this.dataCache, maskPattern);
-    },
-    setupPositionProbePattern: function (row, col) { for (let r = -1; r <= 7; r++) { if (row + r <= -1 || this.moduleCount <= row + r) continue; for (let c = -1; c <= 7; c++) { if (col + c <= -1 || this.moduleCount <= col + c) continue; let val; if ((0 <= r && r <= 6 && (c === 0 || c === 6)) || (0 <= c && c <= 6 && (r === 0 || r === 6)) || (2 <= r && r <= 4 && 2 <= c && c <= 4)) val = true; else val = false; this.modules[row + r][col + c] = val; } } },
-    getBestMaskPattern: function () { let minLost = Infinity, pattern = 0; for (let i = 0; i < 8; i++) { this.makeImpl(true, i); const lost = QRUtil.getLostPoint(this); if (lost < minLost) { minLost = lost; pattern = i; } } return pattern; },
-    setupTimingPattern: function () { for (let r = 8; r < this.moduleCount - 8; r++) { if (this.modules[r][6] != null) continue; this.modules[r][6] = (r % 2 === 0); } for (let c = 8; c < this.moduleCount - 8; c++) { if (this.modules[6][c] != null) continue; this.modules[6][c] = (c % 2 === 0); } },
-    setupPositionAdjustPattern: function () { const pos = ALIGN_PATTERNS[this.typeNumber] || []; for (let i = 0; i < pos.length; i++) for (let j = 0; j < pos.length; j++) { const row = pos[i], col = pos[j]; if (this.modules[row][col] != null) continue; for (let r = -2; r <= 2; r++) for (let c = -2; c <= 2; c++) { if (r === -2 || r === 2 || c === -2 || c === 2 || (r === 0 && c === 0)) this.modules[row + r][col + c] = true; else this.modules[row + r][col + c] = false; } } },
-    setupTypeNumber: function (test) { const bits = QRUtil.getBCHTypeNumber(this.typeNumber); for (let i = 0; i < 18; i++) { const mod = (!test && ((bits >> i) & 1) === 1); this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod; } for (let i = 0; i < 18; i++) { const mod = (!test && ((bits >> i) & 1) === 1); this.modules[i % 3 + this.moduleCount - 8 - 3][Math.floor(i / 3)] = mod; } },
-    setupTypeInfo: function (test, maskPattern) { const data = (this.errorCorrectLevel << 3) | maskPattern; const bits = getBCHTypeInfo(data); for (let i = 0; i < 15; i++) { const mod = (!test && ((bits >> i) & 1) === 1); if (i < 6) this.modules[i][8] = mod; else if (i < 8) this.modules[i + 1][8] = mod; else this.modules[this.moduleCount - 15 + i][8] = mod; } for (let i = 0; i < 15; i++) { const mod = (!test && ((bits >> i) & 1) === 1); if (i < 8) this.modules[8][this.moduleCount - i - 1] = mod; else if (i < 9) this.modules[8][15 - i - 1 + 1] = mod; else this.modules[8][15 - i - 1] = mod; } this.modules[this.moduleCount - 8][8] = !test; },
-    mapData: function (data, maskPattern) { let inc = -1, row = this.moduleCount - 1, bitIndex = 7, byteIndex = 0; const maskFunc = QRUtil.getMaskFunction(maskPattern); for (let col = this.moduleCount - 1; col > 0; col -= 2) { if (col === 6) col--; while (true) { for (let c = 0; c < 2; c++) { if (this.modules[row][col - c] == null) { let dark = false; if (byteIndex < data.length) { dark = (((data[byteIndex] >>> bitIndex) & 1) === 1); } if (maskFunc(row, col - c)) dark = !dark; this.modules[row][col - c] = dark; bitIndex--; if (bitIndex === -1) { byteIndex++; bitIndex = 7; } } } row += inc; if (row < 0 || this.moduleCount <= row) { row -= inc; inc = -inc; break; } } } }
-  };
-  QRCode.createData = function (typeNumber, ecLevel, dataList) {
-    const buffer = new BitBuffer();
-    
-    
-    
-    
-    
-    
-    
-    for (let i = 0; i < dataList.length; i++) { const data = dataList[i]; buffer.put(data.mode, 4); buffer.put(data.getLength(), typeNumber >= 10 ? 16 : 8); data.write(buffer); }
-    const totalDataCount = DATA_CODEWORDS[typeNumber];
-    if (buffer.length + 4 <= totalDataCount * 8) buffer.put(0, 4);
-    while (buffer.length % 8 !== 0) buffer.putBit(false);
-    while (true) { if (buffer.length >= totalDataCount * 8) break; buffer.put(0xEC, 8); if (buffer.length >= totalDataCount * 8) break; buffer.put(0x11, 8); }
-    return QRCode.createBytes(buffer, typeNumber);
-  };
-  
-  
-  
-  
-  QRCode.createBytes = function (buffer, typeNumber) {
-    const ecPerBlock = EC_CODEWORDS_PER_BLOCK[typeNumber];
-    const [n1, len1, n2, len2] = BLOCK_LAYOUT[typeNumber];
-    const allBytes = buffer.buffer;
-    const blocks = [];
-    let offset = 0;
-    for (let i = 0; i < n1; i++) { blocks.push(allBytes.slice(offset, offset + len1).map(b => 0xff & b || 0)); while (blocks[blocks.length - 1].length < len1) blocks[blocks.length - 1].push(0); offset += len1; }
-    for (let i = 0; i < n2; i++) { blocks.push(allBytes.slice(offset, offset + len2).map(b => 0xff & b || 0)); while (blocks[blocks.length - 1].length < len2) blocks[blocks.length - 1].push(0); offset += len2; }
-    const rsPoly = getErrorCorrectPolynomial(ecPerBlock);
-    const ecBlocks = blocks.map(dcodeBytes => {
-      const rawPoly = new Polynomial(dcodeBytes, rsPoly.getLength() - 1);
-      const modPoly = rawPoly.mod(rsPoly);
-      const ecdata = new Array(rsPoly.getLength() - 1);
-      for (let i = 0; i < ecdata.length; i++) { const modIndex = i + modPoly.getLength() - ecdata.length; ecdata[i] = (modIndex >= 0) ? modPoly.get(modIndex) : 0; }
-      return ecdata;
-    });
-    const maxDataLen = Math.max(...blocks.map(b => b.length));
-    const result = [];
-    for (let i = 0; i < maxDataLen; i++) for (const b of blocks) if (i < b.length) result.push(b[i]);
-    for (let i = 0; i < ecPerBlock; i++) for (const b of ecBlocks) result.push(b[i]);
-    return result;
-  };
-  const QRUtil = {
-    getBCHTypeNumber: function (t) { let d = t << 12; while (getBCHDigit(d) - getBCHDigit(G18) >= 0) d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18))); return (t << 12) | d; },
-    getMaskFunction: function (pattern) { switch (pattern) { case 0: return (i, j) => (i + j) % 2 === 0; case 1: return (i) => i % 2 === 0; case 2: return (i, j) => j % 3 === 0; case 3: return (i, j) => (i + j) % 3 === 0; case 4: return (i, j) => (Math.floor(i / 2) + Math.floor(j / 3)) % 2 === 0; case 5: return (i, j) => (i * j) % 2 + (i * j) % 3 === 0; case 6: return (i, j) => ((i * j) % 2 + (i * j) % 3) % 2 === 0; case 7: return (i, j) => ((i * j) % 3 + (i + j) % 2) % 2 === 0; default: return () => false; } },
-    getLostPoint: function (qr) {
-      const n = qr.moduleCount; let lost = 0;
-      for (let row = 0; row < n; row++) for (let col = 0; col < n; col++) {
-        let sameCount = 0; const dark = qr.modules[row][col];
-        for (let r = -1; r <= 1; r++) { if (row + r < 0 || n <= row + r) continue; for (let c = -1; c <= 1; c++) { if (col + c < 0 || n <= col + c) continue; if (r === 0 && c === 0) continue; if (dark === qr.modules[row + r][col + c]) sameCount++; } }
-        if (sameCount > 5) lost += (3 + sameCount - 5);
-      }
-      return lost;
-    }
-  };
-  function generate(text) {
-    try {
-      const version = chooseVersion(text.length);
-      const qr = new QRCode(version, text);
-      const best = qr.getBestMaskPattern();
-      qr.makeImpl(false, best);
-      return qr;
-    } catch (e) { console.error("QR generation failed", e); return null; }
-  }
-  function renderToCanvas(canvas, text, size) {
-    const qr = generate(text);
-    if (!qr) { canvas.getContext("2d").fillText("QR error", 10, 20); return; }
-    const count = qr.moduleCount;
-    const cell = Math.floor(size / (count + 8));
-    const px = cell * (count + 8);
-    canvas.width = px; canvas.height = px;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 0, px, px);
-    ctx.fillStyle = "#1F1B16";
-    const offset = cell * 4;
-    for (let r = 0; r < count; r++) for (let c = 0; c < count; c++) {
-      if (qr.modules[r][c]) ctx.fillRect(offset + c * cell, offset + r * cell, cell, cell);
-    }
-  }
-  function maxCapacity() { return CHAR_CAP[10]; }
-  function canEncode(text) { return String(text || "").length <= maxCapacity(); }
-  return { renderToCanvas, maxCapacity, canEncode };
-})();
-function drawSessionQR(canvasEl) {
-  
-  
-  
-  
-  
-  
-  
-  const url = (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL")
-    ? CONFIG.APP_URL
-    : window.location.href.split("#")[0];
-  QR.renderToCanvas(canvasEl, url, 220);
-}
-
-
-const APP_ICON_URL = "https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png";
-const MANIFEST_OBJ = {
-  name: CONFIG.SHOP_NAME,
-  short_name: "Radha Raman",
-  description: "Fresh fruit & food shop - social-style ordering and updates",
-  start_url: (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL") ? CONFIG.APP_URL : "./",
-  scope: (CONFIG.APP_URL && CONFIG.APP_URL !== "YOUR_GITHUB_PAGES_URL") ? CONFIG.APP_URL : "./",
-  id: "/",
-  display: "standalone",
-  display_override: ["standalone", "minimal-ui"],
-  orientation: "portrait-primary",
-  background_color: "#FFF8ED",
-  theme_color: "#E8871E",
-  icons: [
-    { src: APP_ICON_URL, sizes: "192x192", type: "image/png", purpose: "any" },
-    { src: APP_ICON_URL, sizes: "512x512", type: "image/png", purpose: "any" },
-    { src: APP_ICON_URL, sizes: "192x192", type: "image/png", purpose: "maskable" },
-    { src: APP_ICON_URL, sizes: "512x512", type: "image/png", purpose: "maskable" }
-  ]
-};
-function attachManifest() {
-  try {
-    // A data: URI is used instead of a blob: URI. Chrome's installability
-    // checks (and beforeinstallprompt) treat blob: manifests as unreliable
-    // across versions, but a data: URI is a stable, immediately-fetchable
-    // resource attached to the document itself.
-    if (document.getElementById("appManifestLink")) return;
-    const json = JSON.stringify(MANIFEST_OBJ);
-    const dataUrl = "data:application/manifest+json;charset=utf-8," + encodeURIComponent(json);
-    const link = document.createElement("link");
-    link.id = "appManifestLink";
-    link.rel = "manifest";
-    link.href = dataUrl;
-    document.head.appendChild(link);
-  } catch (e) { console.warn("Manifest attach failed", e); }
-}
-
-
-
-
-const SERVICE_WORKER_SRC = `
-const CACHE = 'radharaman-v2';
-self.addEventListener('install', e => { self.skipWaiting(); });
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-    )).then(() => self.clients.claim())
-  );
-});
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request).then(res => {
-      const resClone = res.clone();
-      caches.open(CACHE).then(c => c.put(e.request, resClone)).catch(()=>{});
-      return res;
-    }).catch(() => caches.match(e.request).then(cached => cached || caches.match('/')))
-  );
-});
-`;
-async function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) return;
-  try {
-    // A data: URI is used instead of a blob: URI. Many Chrome versions
-    // outright reject navigator.serviceWorker.register() on a blob: URL
-    // ("URL protocol of the current origin ('blob') is not supported"),
-    // which silently prevents the service worker from ever controlling the
-    // page. Without a controlling service worker, Chrome's installability
-    // criteria are never met, beforeinstallprompt never fires, and the
-    // Install button stays permanently disabled. A data: URI registers
-    // reliably and satisfies the same-origin-derived requirement.
-    const dataUrl = "data:text/javascript;charset=utf-8," + encodeURIComponent(SERVICE_WORKER_SRC);
-    const reg = await navigator.serviceWorker.register(dataUrl);
-    STATE.swRegistered = true;
-    return reg;
-  } catch (e) {
-    STATE.swRegistered = false;
-    console.warn("Service worker registration unavailable in this browser:", e.message);
-  }
-}
-function isIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-}
-function isInStandaloneMode() {
-  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
-}
-function initInstallPrompt() {
-  // Attach the manifest and register the service worker as early as
-  // possible (page load), not only after login - Chrome evaluates
-  // installability against the document as a whole, and waiting until
-  // enterApp() delays (and can miss) the beforeinstallprompt signal.
-  attachManifest();
-  registerServiceWorker();
-
-  window.addEventListener("beforeinstallprompt", (e) => {
-    e.preventDefault();
-    STATE.deferredInstallPrompt = e;
-    const btn = $("#btnInstallApp");
-    if (btn) { btn.disabled = false; btn.textContent = "Install"; }
-  });
-  window.addEventListener("appinstalled", () => {
-    toast("App installed");
-    STATE.deferredInstallPrompt = null;
-    const btn = $("#btnInstallApp");
-    if (btn) { btn.disabled = true; btn.textContent = "Installed"; }
-  });
-
-  if (isInStandaloneMode()) {
-    const btn = $("#btnInstallApp");
-    if (btn) { btn.disabled = true; btn.textContent = "Installed"; }
-  }
-}
-async function triggerInstall() {
-  if (isInStandaloneMode()) {
-    toast("Already installed as an app.");
-    return;
-  }
-  if (isIOS()) {
-    // iOS Safari has no beforeinstallprompt API at all - "Install" there
-    // means the user must use the native Share sheet. This previously left
-    // the button just quietly doing nothing / looking broken on iPhones.
-    openModal("Add to Home Screen (iOS)", `
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <p>iOS doesn't allow apps to trigger install directly. To install as a real full-screen app:</p>
-          <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
-            <li>Tap the <b>Share</b> icon <i class="fa-solid fa-arrow-up-from-bracket"></i> in Safari's toolbar</li>
-            <li>Scroll down and tap <b>Add to Home Screen</b></li>
-            <li>Tap <b>Add</b> in the top right</li>
-          </ol>
-          <p style="opacity:.75;font-size:13px;">Once added, open it from your Home Screen icon (not Safari) - it'll run full-screen like a native app, with no browser bar.</p>
-        </div>`);
-    return;
-  }
-  if (!STATE.deferredInstallPrompt) {
-    toast("Install isn't available yet - if you just opened the page, wait a moment, or use your browser menu's 'Add to Home Screen' / 'Install app' option.");
-    return;
-  }
-  STATE.deferredInstallPrompt.prompt();
-  const choice = await STATE.deferredInstallPrompt.userChoice;
-  STATE.deferredInstallPrompt = null;
-  if (choice && choice.outcome === "dismissed") {
-    const btn = $("#btnInstallApp");
-    if (btn) btn.disabled = false;
-  }
-}
-
-
-function showScreenGroup(group) {
-  ["screen-entry", "screen-customer-login", "screen-owner-login"].forEach(id => $("#" + id).classList.add("hidden"));
-  if (group === "entry") $("#screen-entry").classList.remove("hidden");
-  if (group === "customer-login") $("#screen-customer-login").classList.remove("hidden");
-  if (group === "owner-login") $("#screen-owner-login").classList.remove("hidden");
-}
-function enterApp() {
-  $("#screen-entry").classList.add("hidden");
-  $("#screen-customer-login").classList.add("hidden");
-  $("#screen-owner-login").classList.add("hidden");
-  $("#mainApp").classList.remove("hidden");
-  $("#navOwner").classList.toggle("hidden", STATE.role !== "owner");
-  $("#navCustomer").classList.toggle("hidden", STATE.role === "owner");
-  ["create", "live", "customers"].forEach(s => { if (STATE.role !== "owner") $("#screen-" + s) && $("#screen-" + s).classList.add("hidden"); });
-  navigateTo("home");
-  renderProfile();
-  renderSessionCodeEverywhere();
-  loadPostsFromDB().then(renderFeed);
-  renderChatList();
-  startAutoConnect();
-}
-const SCREEN_TITLES = { home: "Home feed", create: "New post", live: "Shop session", shop: "Connect to shop", chatlist: "Chats", chatthread: "Chat", activity: "Activity", profile: "Your profile", customers: "Customers" };
-function navigateTo(screen) {
-  STATE.currentScreen = screen;
-  $all(".screen").forEach(s => s.classList.add("hidden"));
-  const target = $("#screen-" + screen);
-  if (target) target.classList.remove("hidden");
-  $all(".nav-item").forEach(btn => {
-    const match = btn.dataset.screen === screen;
-    btn.classList.toggle("active", match);
-    if (match) btn.setAttribute("aria-current", "page"); else btn.removeAttribute("aria-current");
-  });
-  const sub = $("#topbarSub");
-  if (sub) sub.textContent = SCREEN_TITLES[screen] || "";
-  if (screen === "chatlist") renderChatList();
-  if (screen === "profile") renderProfile();
-  if (screen === "live") renderLivePanel();
-  if (screen === "shop") renderShopConnectScreen();
-  if (screen === "activity") renderActivity();
-  if (screen === "customers") renderAdminCustomers();
-}
-function renderSessionCodeEverywhere() {
-  
-  
-  
-  
-  const dateEls = [$("#ownerSessionDate"), $("#shopScreenDate"), $("#profileSessionDate")];
-  dateEls.forEach(el => { if (el) el.textContent = formatDisplayDate(); });
-  const chip = $("#feedSessionChip");
-  if (chip) chip.textContent = formatDisplayDate();
-}
-function renderProfile() {
-  const avatar = $("#profileAvatar");
-  const nameEl = $("#profileName");
-  const subEl = $("#profileSub");
-  if (STATE.role === "owner") {
-    avatar.innerHTML = '<img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">';
-    nameEl.textContent = CONFIG.OWNER_NAME;
-    subEl.innerHTML = '<span class="owner-badge">OWNER / ADMIN</span>';
-  } else {
-    avatar.innerHTML = '<i class="fa-solid fa-user" style="color:#fff;font-size:30px;" aria-hidden="true"></i>';
-    nameEl.textContent = STATE.customer ? STATE.customer.name : "Guest";
-    subEl.textContent = "Customer";
-  }
-  $("#profileLiveStatus").textContent = STATE.isLive ? "Live" : "Offline";
-  $("#profilePeerCount").textContent = connectedPeerCount();
-  $("#btnInstallApp").disabled = !STATE.deferredInstallPrompt;
-}
-async function renderFeed() {
-  const list = $("#feedList");
-  const posts = STATE.posts;
-  if (!posts.length) {
-    list.innerHTML = `<div class="empty-state">
-      <i class="fa-solid fa-basket-shopping" style="font-size:42px;color:var(--ink-soft);" aria-hidden="true"></i>
-      <h3>No posts yet</h3>
-      <p>${STATE.role === "owner" ? "Tap Create to post your first product photo." : "Check back soon, or connect to the shop for live updates."}</p>
-    </div>`;
-    return;
-  }
-  const chunks = await Promise.all(posts.map(renderPostCard));
-  list.innerHTML = chunks.join("");
-  attachFeedEventListeners();
-}
-async function renderPostCard(post) {
-  const reactions = await getReactionsForPost(post.postId);
-  const actorId = STATE.role === "owner" ? "owner" : (STATE.customer ? STATE.customer.id : "guest");
-  const myReaction = reactions.find(r => r.actorId === actorId);
-  const counts = {};
-  reactions.forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
-  const topTypes = Object.keys(counts).sort((a, b) => counts[b] - counts[a]).slice(0, 3);
-  const totalReactions = reactions.length;
-  const isOwnerViewer = STATE.role === "owner";
-  return `
-  <article class="post-card" data-post-id="${escapeHTML(post.postId)}">
-    <div class="post-head">
-      <div class="post-avatar" aria-hidden="true"><img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img"></div>
-      <div class="post-headtext">
-        <div class="post-shop">${escapeHTML(CONFIG.SHOP_NAME)} <span class="owner-badge">SHOP</span></div>
-        <div class="post-meta">${escapeHTML(post.date)} &middot; ${escapeHTML(post.time)}</div>
-      </div>
-      ${isOwnerViewer ? `<button class="icon-btn post-delete-btn" data-action="delete-post" aria-label="Delete this post" style="border-color:var(--watermelon-light);color:var(--watermelon-dark);"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>` : ""}
-    </div>
-    <div class="post-img-wrap">
-      ${post.category ? `<span class="post-cat">${escapeHTML(post.category)}</span>` : ""}
-      <img src="${post.imageData}" alt="${escapeHTML(post.caption || "Product photo")}" loading="lazy">
-    </div>
-    <div class="post-body">
-      <p class="post-caption">${escapeHTML(post.caption)}</p>
-    </div>
-    ${totalReactions > 0 ? `<div class="reaction-summary">
-      <div class="reaction-pills">${topTypes.map(t => `<span class="reaction-pill" aria-hidden="true">${REACTIONS[t].emoji}</span>`).join("")}</div>
-      <span>${totalReactions}</span>
-    </div>` : ""}
-    <div class="post-actions">
-      <div class="action-wrap">
-        <button class="action-btn react-btn ${myReaction ? "liked" : ""}" data-action="react-toggle" aria-label="Like or react to this post" style="${myReaction ? "color:" + REACTIONS[myReaction.type].color + ";" : ""}">
-          ${myReaction ? `<span aria-hidden="true">${REACTIONS[myReaction.type].emoji}</span>` : `<i class="fa-regular fa-heart" aria-hidden="true"></i>`} ${myReaction ? REACTIONS[myReaction.type].label : "Like"}
-        </button>
-      </div>
-      <a class="action-btn" href="tel:${CONFIG.SHOP_PHONE}" aria-label="Call the shop">
-        <i class="fa-solid fa-phone" aria-hidden="true"></i>
-        Call
-      </a>
-      <button class="action-btn" data-action="chat-open" aria-label="Chat with the shop">
-        <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-        Chat
-      </button>
-      <button class="action-btn" data-action="share" aria-label="Share this post">
-        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
-        Share
-      </button>
-    </div>
-    <div class="reaction-picker hidden" data-picker>
-      ${Object.entries(REACTIONS).map(([type, r]) => `<button type="button" data-react-type="${type}" aria-label="React with ${r.label}"><span aria-hidden="true">${r.emoji}</span></button>`).join("")}
-    </div>
-  </article>`;
-}
-function attachFeedEventListeners() {
-  $all(".post-card").forEach(card => {
-    const postId = card.dataset.postId;
-    const reactBtn = card.querySelector('[data-action="react-toggle"]');
-    const picker = card.querySelector("[data-picker]");
-    reactBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const isOpen = !picker.classList.contains("hidden");
-      $all(".reaction-picker").forEach(p => p.classList.add("hidden"));
-      if (!isOpen) picker.classList.remove("hidden");
-    });
-    picker.querySelectorAll("button[data-react-type]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        toggleReaction(postId, btn.dataset.reactType);
-        picker.classList.add("hidden");
-      });
-    });
-    card.querySelector('[data-action="chat-open"]').addEventListener("click", () => {
-      openOwnerChatFromCustomer();
-    });
-    const shareBtn = card.querySelector('[data-action="share"]');
-    shareBtn.addEventListener("click", async () => {
-      const post = STATE.posts.find(p => p.postId === postId);
-      const text = (post ? post.caption : "") + " - " + CONFIG.SHOP_NAME;
-      if (navigator.share) {
-        try { await navigator.share({ title: CONFIG.SHOP_NAME, text }); } catch (e) {}
-      } else {
-        toast("Sharing isn't supported in this browser - copy the caption instead.");
-      }
-    });
-    const deleteBtn = card.querySelector('[data-action="delete-post"]');
-    if (deleteBtn) {
-      deleteBtn.addEventListener("click", () => confirmDeletePost(postId));
-    }
-  });
-  document.addEventListener("click", () => $all(".reaction-picker").forEach(p => p.classList.add("hidden")), { once: true });
-}
-
-
-function confirmDeletePost(postId) {
-  openModal("Delete this post?", `
-    <p style="font-size:14px;">This removes the photo, caption and reactions for good. Connected customers will also lose it from their feed.</p>
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-outline btn-block" id="cancelDeletePost">Cancel</button>
-      <button class="btn btn-danger btn-block" id="confirmDeletePost"><i class="fa-solid fa-trash-can" aria-hidden="true"></i>&nbsp; Delete</button>
-    </div>`, (body) => {
-    body.querySelector("#cancelDeletePost").addEventListener("click", closeModal);
-    body.querySelector("#confirmDeletePost").addEventListener("click", async () => {
-      closeModal();
-      await deletePost(postId);
-      toast("Post deleted");
-    });
-  });
-}
-
-
-function renderLivePanel() {
-  $("#ownerSessionDate").textContent = formatDisplayDate();
-  const stamp = $("#ownerLiveStamp");
-  stamp.innerHTML = '<i class="fa-solid fa-circle dot" aria-hidden="true"></i>' + (STATE.isLive ? "LIVE" : "OFFLINE");
-  $("#ownerPeerCount").textContent = connectedPeerCount();
-  $("#ownerPostCount").textContent = STATE.posts.filter(p => p.date === formatDisplayDate()).length;
-  $("#btnToggleLive").textContent = STATE.isLive ? "End Shop Session" : "Start Shop Session";
-  renderPeerLists();
-}
-function renderPeerLists() {
-  const ownerList = $("#ownerPeerList");
-  const entries = Object.values(STATE.peers);
-  if (ownerList) {
-    if (!entries.length) {
-      ownerList.innerHTML = '<p style="font-size:13px;color:var(--ink-soft);">No customers connected yet.</p>';
-    } else {
-      ownerList.innerHTML = entries.map(p => `
-        <div class="peer-row">
-          <span class="peer-dot ${p.status === "connected" ? "" : "pending"}"></span>
-          <div style="flex:1;">
-            <div style="font-size:13.5px;font-weight:600;">${escapeHTML(p.name)}</div>
-            <div style="font-size:11px;color:var(--ink-soft);">${escapeHTML(p.status)}</div>
-          </div>
-        </div>`).join("");
-    }
-  }
-  $("#ownerPeerCount") && ($("#ownerPeerCount").textContent = connectedPeerCount());
-  $("#liveDotIndicator").classList.toggle("hidden", !STATE.isLive);
-  $("#profilePeerCount") && ($("#profilePeerCount").textContent = connectedPeerCount());
-}
-
-// Owner-only admin view: every customer record this owner device has
-// ever persisted (see ingestCustomerProfile), independent of whether
-// that customer is connected right now. This is real local data -
-// there is still no shared backend server, so this list reflects
-// only customers who have connected to THIS specific owner device at
-// some point, not a company-wide customer database.
-async function renderAdminCustomers() {
-  const wrap = $("#adminCustomerList");
-  if (!wrap || STATE.role !== "owner") return;
-  const customers = await dbGetAll("customers");
-  if (!customers.length) {
-    wrap.innerHTML = `<div class="empty-state"><h3>No customers yet</h3><p>Once a customer connects (same device or a cross-device QR connect), their profile will be saved here permanently on this device.</p></div>`;
-    return;
-  }
-  customers.sort((a, b) => new Date(b.lastSeenAt) - new Date(a.lastSeenAt));
-  const rows = await Promise.all(customers.map(async (c) => {
-    const isConnectedNow = Object.values(STATE.peers).some(p => p.status === "connected" && p.peerId === c.peerId);
-    const msgs = c.peerId ? await getMessagesForThread(c.peerId) : [];
-    return `
-      <div class="card" style="margin-bottom:10px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
-        <div class="chat-list-avatar" aria-hidden="true" style="width:36px;height:36px;font-size:13px;">${escapeHTML((c.name || "?").slice(0, 1).toUpperCase())}</div>
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:14px;font-weight:700;">${escapeHTML(c.name)}</span>
-            ${isConnectedNow ? `<span class="stamp live" style="font-size:9px;padding:2px 8px;">ONLINE</span>` : ""}
-          </div>
-          ${c.mobile ? `<div style="font-size:12.5px;color:var(--ink-soft);margin-top:2px;"><i class="fa-solid fa-phone" aria-hidden="true"></i>&nbsp; ${escapeHTML(c.mobile)}</div>` : ""}
-          <div style="font-size:11px;color:var(--ink-soft);margin-top:4px;">First connected ${escapeHTML(relativeOrTime(c.firstSeenAt))} &middot; Last seen ${escapeHTML(relativeOrTime(c.lastSeenAt))}</div>
-          ${msgs.length ? `<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i>&nbsp; ${msgs.length} chat message${msgs.length === 1 ? "" : "s"}</div>` : ""}
-        </div>
-      </div>`;
-  }));
-  wrap.innerHTML = rows.join("");
-}
-
-
-function renderShopConnectScreen() {
-  const stamp = $("#shopConnStamp");
-  const connected = connectedPeerCount() > 0;
-  stamp.className = "stamp " + (connected ? "live" : "off");
-  stamp.innerHTML = '<i class="fa-solid fa-circle dot" aria-hidden="true"></i>' + (connected ? "CONNECTED" : "CONNECTING AUTOMATICALLY");
-  const dateEl = $("#shopScreenDate");
-  if (dateEl) dateEl.textContent = formatDisplayDate();
-}
-
-
-async function renderChatList() {
-  const wrap = $("#chatListWrap");
-  if (!wrap) return;
-  if (STATE.role === "owner") {
-    const peers = Object.values(STATE.peers);
-    if (!peers.length) {
-      wrap.innerHTML = `<div class="empty-state"><h3>No customer chats yet</h3><p>Connected customers will appear here once they message you.</p></div>`;
-      return;
-    }
-    const rows = await Promise.all(peers.map(async p => {
-      const msgs = await getMessagesForThread(p.peerId);
-      const last = msgs[msgs.length - 1];
-      return `<div class="chat-list-item" data-peer-id="${escapeHTML(p.peerId)}" role="button" tabindex="0">
-        <div class="chat-list-avatar">${escapeHTML((p.name || "?").slice(0, 1).toUpperCase())}</div>
-        <div class="chat-list-text">
-          <div class="chat-list-name">${escapeHTML(p.name)}</div>
-          <div class="chat-list-preview">${last ? escapeHTML(last.text) : "Say hello"}</div>
-        </div>
-      </div>`;
-    }));
-    wrap.innerHTML = rows.join("");
-  } else {
-    const ownerPeer = Object.values(STATE.peers)[0];
-    if (!ownerPeer) {
-      wrap.innerHTML = `<div class="empty-state">
-        <h3>Not connected yet</h3>
-        <p>Connect to the shop from the Shop tab to start chatting live with Radha Raman Foodshop.</p>
-      </div>`;
-      return;
-    }
-    const msgs = await getMessagesForThread(ownerPeer.peerId);
-    const last = msgs[msgs.length - 1];
-    wrap.innerHTML = `<div class="chat-list-item" data-peer-id="${escapeHTML(ownerPeer.peerId)}" role="button" tabindex="0">
-      <div class="chat-list-avatar"><img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img"></div>
-      <div class="chat-list-text">
-        <div class="chat-list-name">${escapeHTML(CONFIG.SHOP_NAME)}</div>
-        <div class="chat-list-preview">${last ? escapeHTML(last.text) : "Say hello"}</div>
-      </div>
-    </div>`;
-  }
-  $all("#chatListWrap .chat-list-item").forEach(item => {
-    item.addEventListener("click", () => openChatThread(item.dataset.peerId));
-    item.addEventListener("keypress", (e) => { if (e.key === "Enter") openChatThread(item.dataset.peerId); });
-  });
-}
-function openOwnerChatFromCustomer() {
-  const ownerPeer = Object.values(STATE.peers)[0];
-  if (!ownerPeer) {
-    navigateTo("shop");
-    toast("Connect to the shop first to start chatting.");
-    return;
-  }
-  openChatThread(ownerPeer.peerId);
-}
-async function openChatThread(peerId) {
-  STATE.activeChatPeerId = peerId;
-  const entry = STATE.peers[peerId];
-  const threadAvatarEl = $("#threadAvatar");
-  if (STATE.role !== "owner") {
-    
-    threadAvatarEl.innerHTML = `<img src="https://i.ibb.co/H5CM1ft/file-0000000015488208815c079b193477ad.png" alt="" class="logo-img">`;
-  } else {
-    
-    threadAvatarEl.textContent = entry ? (entry.name || "?").slice(0, 1).toUpperCase() : "?";
-  }
-  $("#threadName").textContent = entry ? entry.name : "Chat";
-  $("#threadStatus").textContent = entry && entry.status === "connected" ? "Connected · live" : "Not connected - messages will send once linked";
-  navigateTo("chatthread");
-  await renderChatThread(peerId);
-}
-async function renderChatThread(peerId) {
-  if (STATE.activeChatPeerId !== peerId && STATE.currentScreen !== "chatthread") return;
-  const wrap = $("#chatThreadMessages");
-  const msgs = await getMessagesForThread(peerId);
-  if (!msgs.length) {
-    wrap.innerHTML = `<div class="empty-state"><p>No messages yet, say hello</p></div>`;
-  } else {
-    wrap.innerHTML = msgs.map(m => `
-      <div class="msg-row ${m.direction === "out" ? "me" : "them"}">
-        <div>
-          <div class="msg-bubble">${escapeHTML(m.text)}</div>
-          <div class="msg-meta">${escapeHTML(formatDisplayTime(new Date(m.createdAt)))}${m.direction === "out" ? " · " + escapeHTML(m.status) : ""}</div>
-        </div>
-      </div>`).join("");
-  }
-  wrap.scrollTop = wrap.scrollHeight;
-  const entry = STATE.peers[peerId];
-  $("#threadStatus").textContent = entry && entry.status === "connected" ? "Connected · live" : "Not connected - messages will send once linked";
-}
-
-
-async function renderActivity() {
-  const wrap = $("#activityList");
-  const reactions = await dbGetAll("reactions");
-  const actorId = STATE.customer ? STATE.customer.id : "guest";
-  const mine = [
-    ...reactions.filter(r => r.actorId === actorId).map(r => ({ isEmoji: true, emoji: REACTIONS[r.type] ? REACTIONS[r.type].emoji : "\u2764\ufe0f", text: "You reacted to a post", at: r.createdAt }))
-  ].sort((a, b) => new Date(b.at) - new Date(a.at));
-  if (!mine.length) {
-    wrap.innerHTML = `<div class="empty-state"><h3>No activity yet</h3><p>Your likes will show up here.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = mine.map(a => `
-    <div class="card" style="margin-bottom:10px;padding:14px;display:flex;gap:12px;align-items:flex-start;">
-      ${a.isEmoji ? `<span style="font-size:16px;margin-top:2px;" aria-hidden="true">${a.emoji}</span>` : `<i class="${a.icon}" style="color:${a.color};font-size:16px;margin-top:2px;" aria-hidden="true"></i>`}
-      <div>
-        <p style="margin:0;font-size:13.5px;">${escapeHTML(a.text)}</p>
-        <p style="margin:4px 0 0;font-size:11px;color:var(--ink-soft);">${escapeHTML(relativeOrTime(a.at))}</p>
-      </div>
-    </div>`).join("");
-}
-
-
-function openModal(titleText, bodyHtml, onMount) {
-  const host = $("#modalHost");
-  host.innerHTML = `
-    <div class="modal-overlay" id="activeModalOverlay">
-      <div class="modal-sheet" role="dialog" aria-modal="true" aria-label="${escapeHTML(titleText)}">
-        <div class="modal-title"><h3>${escapeHTML(titleText)}</h3>
-          <button class="close-x" id="modalCloseBtn" aria-label="Close">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div id="modalBody">${bodyHtml}</div>
-      </div>
-    </div>`;
-  $("#modalCloseBtn").addEventListener("click", closeModal);
-  $("#activeModalOverlay").addEventListener("click", (e) => { if (e.target.id === "activeModalOverlay") closeModal(); });
-  if (onMount) onMount($("#modalBody"));
-}
-function closeModal() { $("#modalHost").innerHTML = ""; }
-
-function showFullscreenQR() {
-  openModal(CONFIG.SHOP_NAME + " - Scan to Open", `
-    <div style="text-align:center;">
-      <p style="font-size:13px;color:var(--ink-soft);margin-top:0;">Scan with your phone's camera, Google Lens, or any QR scanner app, no code needed, the app connects automatically once it loads.</p>
-      <div id="qrCanvasWrap"><canvas id="fullscreenQrCanvas" role="img" aria-label="QR code linking to the shop"></canvas></div>
-    </div>`, (body) => {
-    const canvas = body.querySelector("#fullscreenQrCanvas");
-    drawSessionQR(canvas);
-  });
-}
-
-
-function initEventHandlers() {
-  
-  $("#btnContinueCustomer").addEventListener("click", () => showScreenGroup("customer-login"));
-  $("#btnGoOwnerLogin").addEventListener("click", () => showScreenGroup("owner-login"));
-  $("#backFromCustomerLogin").addEventListener("click", () => showScreenGroup("entry"));
-  $("#backFromOwnerLogin").addEventListener("click", () => showScreenGroup("entry"));
-
-  
-  $("#formCustomerLogin").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const mobile = $("#custMobile").value.trim();
-    const name = sanitizeText($("#custName").value, 40);
-    const errEl = $("#custMobileError");
-    if (!validateMobile(mobile)) {
-      errEl.textContent = "Enter a valid 10-digit mobile number.";
-      errEl.classList.remove("hidden");
-      return;
-    }
-    errEl.classList.add("hidden");
-    loginCustomer(mobile, name || "Guest");
-    toast("Welcome, " + (name || "Guest") + "!");
-  });
-
-  
-  $("#formOwnerLogin").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const u = $("#ownerUser").value.trim();
-    const p = $("#ownerPass").value;
-    const ok = loginOwner(u, p);
-    const errEl = $("#ownerLoginError");
-    if (!ok) {
-      errEl.textContent = "Incorrect username or password.";
-      errEl.classList.remove("hidden");
-    } else {
-      errEl.classList.add("hidden");
-      toast("Welcome back, " + CONFIG.OWNER_NAME);
-    }
-  });
-
-  
-  $("#toggleOwnerPass").addEventListener("click", () => {
-    const input = $("#ownerPass");
-    const btn = $("#toggleOwnerPass");
-    const icon = btn.querySelector("i");
-    const nowVisible = input.type === "password";
-    input.type = nowVisible ? "text" : "password";
-    icon.className = nowVisible ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
-    btn.setAttribute("aria-label", nowVisible ? "Hide password" : "Show password");
-    btn.setAttribute("aria-pressed", nowVisible ? "true" : "false");
-    
-    
-    input.focus();
-    
-    
-    
-    try {
-      const pos = input.value.length;
-      input.setSelectionRange(pos, pos);
-    } catch (err) {  }
-  });
-
-  
-  $all(".nav-item").forEach(btn => btn.addEventListener("click", () => navigateTo(btn.dataset.screen)));
-
-  
-  $("#btnThemeToggle").addEventListener("click", toggleTheme);
-  $("#btnTopbarLive").addEventListener("click", () => navigateTo(STATE.role === "owner" ? "live" : "shop"));
-
-  
-  $("#cameraInput").addEventListener("change", handleImageSelect);
-  $("#galleryInput").addEventListener("change", handleImageSelect);
-  $("#postCaption").addEventListener("input", () => {
-    $("#captionCount").textContent = $("#postCaption").value.length;
-  });
-  $("#formCreatePost").addEventListener("submit", handleCreatePostSubmit);
-
-  
-  $("#btnToggleLive").addEventListener("click", toggleLiveSession);
-  $("#btnStartDeviceConnect") && $("#btnStartDeviceConnect").addEventListener("click", () => {
-    startDeviceConnect();
-  });
-  $("#btnScanToConnect") && $("#btnScanToConnect").addEventListener("click", () => {
-    openQrScanner((code) => { connectToDeviceWithOffer(code); }, "Scan the Shop's Connect QR");
-  });
-
-  
-  $("#btnBackFromThread").addEventListener("click", () => navigateTo("chatlist"));
-  $("#btnSendChat").addEventListener("click", sendChatFromComposer);
-  $("#chatMsgInput").addEventListener("keypress", (e) => { if (e.key === "Enter") sendChatFromComposer(); });
-
-  
-  $("#toggleDarkMode").addEventListener("click", toggleTheme);
-  $("#btnInstallApp").addEventListener("click", triggerInstall);
-  $("#btnShowQrFullscreen").addEventListener("click", showFullscreenQR);
-  $("#btnLogout").addEventListener("click", () => {
-    openModal("Log out?", `
-      <p style="font-size:14px;">You'll need to log in again to access your account. Your saved posts and history stay on this device.</p>
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button class="btn btn-outline btn-block" id="cancelLogout">Cancel</button>
-        <button class="btn btn-danger btn-block" id="confirmLogout">Log out</button>
-      </div>`, (body) => {
-      body.querySelector("#cancelLogout").addEventListener("click", closeModal);
-      body.querySelector("#confirmLogout").addEventListener("click", () => { closeModal(); logout(); });
-    });
-  });
-
-  window.addEventListener("online", updateOfflineBanner);
-  window.addEventListener("offline", updateOfflineBanner);
-}
-
-function sendChatFromComposer() {
-  const input = $("#chatMsgInput");
-  const val = input.value.trim();
-  if (!val || !STATE.activeChatPeerId) return;
-  sendChatMessage(STATE.activeChatPeerId, val);
-  input.value = "";
-}
-
-async function handleImageSelect(e) {
-  const file = e.target.files && e.target.files[0];
-  if (!file) return;
-  try {
-    const dataUrl = await compressImage(file);
-    const approxBytes = Math.round((dataUrl.length * 3) / 4);
-    $("#createImgPreview").src = dataUrl;
-    $("#createImgPreview").classList.remove("hidden");
-    $("#createImgPlaceholder").classList.add("hidden");
-    STATE._pendingImageData = dataUrl;
-    const hint = $("#imageSizeHint");
-    if (approxBytes > CONFIG.MAX_IMAGE_BYTES) {
-      hint.textContent = "This image is large (~" + Math.round(approxBytes / 1024) + "KB) even after compression - it may slow things down on this device.";
-      hint.style.color = "var(--watermelon-dark)";
-    } else {
-      hint.textContent = "Image ready (~" + Math.round(approxBytes / 1024) + "KB).";
-      hint.style.color = "var(--ink-soft)";
-    }
-  } catch (err) {
-    toast(err.message || "Couldn't process that image.");
-  }
-}
-async function handleCreatePostSubmit(e) {
-  e.preventDefault();
-  if (!STATE._pendingImageData) { toast("Please add a product photo first."); return; }
-  const caption = $("#postCaption").value;
-  const category = $("#postCategory").value;
-  const btn = $("#btnPublishPost");
-  btn.disabled = true; btn.textContent = "Posting…";
-  try {
-    await createPost({ imageData: STATE._pendingImageData, caption, category });
-    toast("Posted to shop feed!");
-    $("#formCreatePost").reset();
-    $("#createImgPreview").classList.add("hidden");
-    $("#createImgPlaceholder").classList.remove("hidden");
-    $("#captionCount").textContent = "0";
-    $("#imageSizeHint").textContent = "";
-    STATE._pendingImageData = null;
-    navigateTo("home");
-  } catch (err) {
-    toast("Couldn't publish post: " + err.message);
-  } finally {
-    btn.disabled = false; btn.textContent = "Post to Shop";
-  }
-}
-function toggleLiveSession() {
-  STATE.isLive = !STATE.isLive;
-  localStorage.setItem("rr_is_live", STATE.isLive ? "1" : "0");
-  renderLivePanel();
-  toast(STATE.isLive ? "Shop session is now live" : "Shop session ended");
-}
-function toggleTheme() {
-  STATE.theme = STATE.theme === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", STATE.theme);
-  localStorage.setItem("rr_theme", STATE.theme);
-  const toggleEl = $("#toggleDarkMode");
-  if (toggleEl) { toggleEl.classList.toggle("on", STATE.theme === "dark"); toggleEl.setAttribute("aria-pressed", STATE.theme === "dark"); }
-}
-function updateOfflineBanner() {
-  $("#offlineBanner").classList.toggle("hidden", navigator.onLine);
-}
-
-
-async function init() {
-  
-  const savedTheme = localStorage.getItem("rr_theme");
-  if (savedTheme === "dark") { STATE.theme = "dark"; document.documentElement.setAttribute("data-theme", "dark"); }
-
-  
-  
-  
-  STATE.todaySessionCode = getTodaySessionCode();
-  localStorage.setItem("rr_session_code", STATE.todaySessionCode);
-  localStorage.setItem("rr_session_code_date", formatDisplayDate());
-  STATE.isLive = localStorage.getItem("rr_is_live") === "1";
-
-  try {
-    STATE.db = await openDB();
-  } catch (e) {
-    toast("Local storage isn't available in this browser - some features may not work.");
-  }
-
-  initBroadcastChannel();
-  initInstallPrompt();
-  initEventHandlers();
-  watchForDayChange();
-  updateOfflineBanner();
-  restoreSession();
-}
-
-document.addEventListener("DOMContentLoaded", init);
-</script>
+<script src="app.js"></script>
 </body>
 </html>
