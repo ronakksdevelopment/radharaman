@@ -4,17 +4,33 @@
    Single shop, social-feed style ordering app.
 
    Data flow (no P2P / no WebRTC / no Firebase):
-   - Owner creates posts on their device. Posts are stored locally in
+   - Owner creates or deletes posts on their device. Posts are written to
      IndexedDB immediately, and the feed updates instantly for the owner.
-   - Owner taps "Publish to Live Site" to push the full post list to a
-     JSON file in a GitHub repository (via the GitHub Contents API, using
-     a fine-grained personal access token stored only on the owner's
-     device). GitHub Pages (or any static host reading the same repo)
-     serves that JSON file publicly.
-   - Every device (owner and customers) polls the published JSON file
-     every 10 seconds, diffs it against local storage, and merges in any
-     new or removed posts - so all pages stay in sync automatically
-     without a manual page refresh.
+   - Every create/delete then AUTO-PUBLISHES in the background: the full
+     post list is pushed to a JSON file in a GitHub repository (via the
+     GitHub Contents API, using a fine-grained personal access token
+     stored only on the owner's device). The manual "Publish to Live
+     Site" button still exists as a status display and manual retry, but
+     the owner does not need to press it for normal changes to go live.
+     If a background publish fails (e.g. offline), it keeps retrying on
+     every poll tick until it succeeds - so a change never gets silently
+     stuck unpublished.
+   - Every device (owner AND every customer, on first load and every 10
+     seconds after, in a loop that never stops while the app is open)
+     polls that published JSON file with cache-busting and no-store
+     fetch options, diffs it against local storage, and merges in any
+     new or removed posts - so a delete/publish shows up on every
+     customer's phone within one 10-second cycle, including on a
+     customer's very first visit to the site, with no login or setup
+     needed on their end. The service worker explicitly excludes this
+     data file and the GitHub API from its cache so nothing ever serves
+     a stale post list.
+   - The repo/branch/file-path the app polls (GH_SOURCE below) is public
+     information - it's just a URL, not a secret - so it's shipped with
+     the site itself and every device knows where to look immediately.
+     The personal access token used to PUBLISH (write) is different: it
+     stays only in the owner's own browser localStorage and is never
+     required for a customer to read posts.
    - Customer contact goes through WhatsApp: tapping "Chat" opens a
      wa.me link to the shop's WhatsApp number with a prefilled message,
      instead of an in-app chat thread.
@@ -27,7 +43,7 @@ const CONFIG = {
   SHOP_NAME: "Radha Raman Fruit Shop",
   OWNER_NAME: "Rupak Ghosh",
   SHOP_PHONE: "9387361589",
-  WHATSAPP_NUMBER: "919387361589", // country code + number, digits only
+  WHATSAPP_NUMBER: "918549949827", // country code + number, digits only
   OWNER_USERNAME: "admin",
   OWNER_PASSWORD: "rupak123",
   APP_VERSION: "2.0",
@@ -47,33 +63,55 @@ const CONFIG = {
   PUBLISH_DEBOUNCE_MS: 60000
 };
 
-/* GitHub sync settings are per-device and stored in localStorage - they
-   are never bundled into the published site, and never leave the
-   device except in direct calls to api.github.com made by the owner. */
-const GH_STORAGE_KEY = "rr_github_config";
+/* ---------------------------------------------------------------------
+   GitHub sync source (public, ships with the site)
+   -------------------------------------------------------------------
+   This is WHERE every device reads published posts from. It is not a
+   secret - it's the same info as a public web address - so it is safe
+   to bake into the shipped site and does not depend on any per-device
+   setup. Fill these in once (to match the repo you publish to) and
+   every customer's first-ever page load will already know where to
+   pull posts from.
+   --------------------------------------------------------------------- */
+const GH_SOURCE = {
+  owner: "ronakksdevelopment",
+  repo: "radharaman",
+  branch: "main",
+  path: "data/posts.json"
+};
+function githubSourceIsComplete(src) {
+  return !!(src && src.owner && src.repo && src.branch && src.path
+    && src.owner !== "YOUR_GITHUB_USERNAME" && src.repo !== "YOUR_REPO_NAME");
+}
 
-function getGithubConfig() {
-  try {
-    return JSON.parse(localStorage.getItem(GH_STORAGE_KEY) || "null") || {};
-  } catch (e) {
-    return {};
-  }
+/* The publish TOKEN, by contrast, grants write access and must never be
+   shipped with the site - it lives only in the owner's own browser,
+   entered once through the Publish screen and stored in localStorage
+   on that device only. Everything else about where to publish (owner/
+   repo/branch/path) is taken from GH_SOURCE above so the two can never
+   drift out of sync. */
+const GH_TOKEN_STORAGE_KEY = "rr_github_token";
+
+function getGithubToken() {
+  return localStorage.getItem(GH_TOKEN_STORAGE_KEY) || "";
 }
-function setGithubConfig(cfg) {
-  localStorage.setItem(GH_STORAGE_KEY, JSON.stringify(cfg));
-}
-function githubConfigIsComplete(cfg) {
-  return !!(cfg && cfg.owner && cfg.repo && cfg.branch && cfg.path && cfg.token);
+function setGithubToken(token) {
+  if (token) localStorage.setItem(GH_TOKEN_STORAGE_KEY, token);
+  else localStorage.removeItem(GH_TOKEN_STORAGE_KEY);
 }
 /* The raw content URL is what every device (owner + customers) polls to
    pick up new posts - it requires no authentication since GitHub raw
    content for a public repo is public. */
-function githubRawUrl(cfg) {
-  return "https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + cfg.branch + "/" + cfg.path
-    + "?t=" + Date.now(); // cache-bust so polling always sees the latest commit
+function githubRawUrl(src) {
+  // Double cache-bust: a unique query string PLUS a random component, so
+  // no browser, CDN, proxy, or service worker can ever match this URL
+  // against a previously cached response - every poll is a guaranteed
+  // fresh network hit.
+  return "https://raw.githubusercontent.com/" + src.owner + "/" + src.repo + "/" + src.branch + "/" + src.path
+    + "?t=" + Date.now() + "&r=" + Math.random().toString(36).slice(2);
 }
-function githubContentsApiUrl(cfg) {
-  return "https://api.github.com/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + cfg.path;
+function githubContentsApiUrl(src) {
+  return "https://api.github.com/repos/" + src.owner + "/" + src.repo + "/contents/" + src.path;
 }
 
 /* ---------------------------------------------------------------------
@@ -354,6 +392,7 @@ async function createPost({ imageData, caption, category }) {
   await loadPostsFromDB();
   renderFeed();
   markPendingPublish();
+  autoPublishAfterChange();
   return post;
 }
 
@@ -365,7 +404,29 @@ async function deletePost(postId) {
   await loadPostsFromDB();
   renderFeed();
   markPendingPublish();
+  autoPublishAfterChange();
   return true;
+}
+
+/* Fire-and-forget auto-publish, called right after any local change
+   (create/delete). This is what makes delete/publish actually sync to
+   every owner and customer device: instead of relying on the owner to
+   remember to tap "Publish to Live Site", every change is pushed to
+   GitHub immediately in the background. The manual Publish button and
+   panel stay in place as a visible status/retry control, but the
+   owner no longer has to use it for normal changes to go live. */
+let autoPublishTimer = null;
+function autoPublishAfterChange() {
+  if (STATE.role !== "owner") return;
+  if (!githubSourceIsComplete(GH_SOURCE) || !getGithubToken()) return; // nothing to auto-publish to yet
+  // Debounce briefly so rapid-fire actions (e.g. deleting several posts
+  // in a row) collapse into a single publish instead of racing multiple
+  // overlapping GitHub writes against each other.
+  if (autoPublishTimer) clearTimeout(autoPublishTimer);
+  autoPublishTimer = setTimeout(() => {
+    autoPublishTimer = null;
+    publishToGithub({ silent: true });
+  }, 1200);
 }
 
 /* Merge posts coming from the published GitHub data file into local
@@ -466,18 +527,33 @@ function markPendingPublish() {
   renderPublishPanel();
 }
 
-/* Push the full local post list to the configured GitHub repo file via
-   the Contents API. Requires the existing file's SHA for updates (the
-   API rejects a write without it once the file already exists). */
-async function publishToGithub() {
-  const cfg = getGithubConfig();
-  if (!githubConfigIsComplete(cfg)) {
-    toast("Add your GitHub repo details and token first.");
-    navigateTo("publish");
+/* Push the full local post list to GH_SOURCE via the Contents API.
+   Requires the existing file's SHA for updates (the API rejects a
+   write without it once the file already exists). Owner-only: needs
+   a token, which only the owner's device has. */
+let publishInFlight = false;
+async function publishToGithub(opts) {
+  const silent = !!(opts && opts.silent);
+  if (!githubSourceIsComplete(GH_SOURCE)) {
+    if (!silent) toast("GH_SOURCE isn't set up in app.js yet - see the comment at the top of the file.");
     return false;
   }
+  const token = getGithubToken();
+  if (!token) {
+    if (!silent) { toast("Add your GitHub publish token first."); navigateTo("publish"); }
+    return false;
+  }
+  // Avoid two overlapping publishes stepping on each other (e.g. an
+  // auto-publish firing while the owner also taps the manual button).
+  // If one is already running, queue a follow-up so the latest local
+  // state still ends up published once the current write finishes.
+  if (publishInFlight) {
+    autoPublishAfterChange();
+    return false;
+  }
+  publishInFlight = true;
   const btn = $("#btnPublishNow");
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>&nbsp; Publishing…'; }
+  if (btn && !silent) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>&nbsp; Publishing…'; }
   try {
     const posts = await dbGetAll("posts");
     posts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -487,8 +563,9 @@ async function publishToGithub() {
     // Look up the current file SHA, if it already exists, so the API
     // treats this as an update rather than a conflicting create.
     let sha = null;
-    const getRes = await fetch(githubContentsApiUrl(cfg) + "?ref=" + encodeURIComponent(cfg.branch), {
-      headers: { Authorization: "Bearer " + cfg.token, Accept: "application/vnd.github+json" }
+    const getRes = await fetch(githubContentsApiUrl(GH_SOURCE) + "?ref=" + encodeURIComponent(GH_SOURCE.branch) + "&_=" + Date.now(), {
+      cache: "no-store",
+      headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "Cache-Control": "no-cache" }
     });
     if (getRes.status === 200) {
       const getData = await getRes.json();
@@ -498,17 +575,17 @@ async function publishToGithub() {
       throw new Error("GitHub lookup failed (" + getRes.status + "): " + errBody.slice(0, 200));
     }
 
-    const putRes = await fetch(githubContentsApiUrl(cfg), {
+    const putRes = await fetch(githubContentsApiUrl(GH_SOURCE), {
       method: "PUT",
       headers: {
-        Authorization: "Bearer " + cfg.token,
+        Authorization: "Bearer " + token,
         Accept: "application/vnd.github+json",
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         message: "Update shop posts (" + posts.length + " posts) - " + new Date().toISOString(),
         content: content,
-        branch: cfg.branch,
+        branch: GH_SOURCE.branch,
         sha: sha || undefined
       })
     });
@@ -520,31 +597,49 @@ async function publishToGithub() {
     STATE.lastPublishedAt = new Date().toISOString();
     localStorage.setItem("rr_last_published_at", STATE.lastPublishedAt);
     localStorage.removeItem("rr_pending_publish");
-    appendPublishLog("Published " + posts.length + " posts successfully.");
-    toast("Published! Live in about a minute.");
+    appendPublishLog("Published " + posts.length + " posts successfully" + (silent ? " (auto)" : "") + ".");
+    if (!silent) toast("Published! Syncing to all devices now.");
     renderPublishPanel();
     return true;
   } catch (err) {
     appendPublishLog("Error: " + err.message);
-    toast("Publish failed: " + err.message);
+    if (!silent) toast("Publish failed: " + err.message);
+    // Leave rr_pending_publish set so the change is retried: either the
+    // owner retries manually, or the next local change triggers another
+    // auto-publish attempt automatically.
     return false;
   } finally {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-github" aria-hidden="true"></i>&nbsp; Publish to Live Site'; }
+    publishInFlight = false;
+    if (btn && !silent) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-github" aria-hidden="true"></i>&nbsp; Publish to Live Site'; }
   }
 }
 
 /* Poll the published JSON file and merge any changes into local
-   storage. Runs on every device (owner and customers) so the feed
-   reflects the live site automatically, without a manual reload. */
+   storage. Runs on EVERY device - owner and customers alike, logged in
+   or not - as soon as the page loads, and every 10 seconds after.
+   Reading GH_SOURCE requires no token, so a customer's very first
+   visit already picks up whatever the owner has published. */
 async function pollForUpdates() {
-  const cfg = getGithubConfig();
-  if (!githubConfigIsComplete(cfg)) return;
+  if (!githubSourceIsComplete(GH_SOURCE)) return;
   try {
-    const res = await fetch(githubRawUrl(cfg), { cache: "no-store" });
+    const res = await fetch(githubRawUrl(GH_SOURCE), {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache" }
+    });
     if (!res.ok) return; // file may not exist yet - nothing to merge
     const data = await res.json();
     await mergeRemotePosts(data.posts);
-    if (STATE.role === "owner") renderPublishPanel();
+    if (STATE.role === "owner") {
+      renderPublishPanel();
+      // Self-healing retry: if an earlier auto-publish failed (e.g. the
+      // owner was briefly offline) rr_pending_publish is still set, so
+      // every poll tick also retries publishing until it succeeds -
+      // this closes the loop so delete/publish always converges without
+      // the owner needing to notice and manually retry.
+      if (localStorage.getItem("rr_pending_publish") === "1" && getGithubToken() && !publishInFlight) {
+        publishToGithub({ silent: true });
+      }
+    }
   } catch (err) {
     // Network hiccups or an unreachable file are expected occasionally
     // (e.g. offline devices) - fail silently and try again next tick.
@@ -562,20 +657,24 @@ function stopPolling() {
 
 function renderPublishPanel() {
   if (STATE.role !== "owner") return;
-  const cfg = getGithubConfig();
-  const configured = githubConfigIsComplete(cfg);
+  const sourceReady = githubSourceIsComplete(GH_SOURCE);
+  const token = getGithubToken();
   const stamp = $("#publishStamp");
   const statusText = $("#publishStatusText");
   if (stamp && statusText) {
-    if (!configured) {
+    if (!sourceReady) {
       stamp.className = "stamp off";
       stamp.innerHTML = '<i class="fa-solid fa-circle dot" aria-hidden="true"></i>NOT CONFIGURED';
-      statusText.textContent = "Add repo details below";
+      statusText.textContent = "Set GH_SOURCE in app.js";
+    } else if (!token) {
+      stamp.className = "stamp off";
+      stamp.innerHTML = '<i class="fa-solid fa-circle dot" aria-hidden="true"></i>TOKEN NEEDED';
+      statusText.textContent = GH_SOURCE.owner + "/" + GH_SOURCE.repo;
     } else {
       const pending = localStorage.getItem("rr_pending_publish") === "1";
       stamp.className = "stamp " + (pending ? "off" : "live");
       stamp.innerHTML = '<i class="fa-solid fa-circle dot" aria-hidden="true"></i>' + (pending ? "CHANGES PENDING" : "UP TO DATE");
-      statusText.textContent = cfg.owner + "/" + cfg.repo;
+      statusText.textContent = GH_SOURCE.owner + "/" + GH_SOURCE.repo;
     }
   }
   const countEl = $("#publishPostCount");
@@ -586,15 +685,15 @@ function renderPublishPanel() {
     lastEl.textContent = last ? relativeOrTime(last) : "Never";
   }
 
-  // Reflect saved config into the form fields (but never echo the token
-  // back visibly by default).
-  if ($("#ghOwner")) {
-    $("#ghOwner").value = cfg.owner || "";
-    $("#ghRepo").value = cfg.repo || "";
-    $("#ghBranch").value = cfg.branch || "main";
-    $("#ghPath").value = cfg.path || "data/posts.json";
-    $("#ghToken").value = cfg.token || "";
+  const repoInfoEl = $("#ghRepoInfo");
+  if (repoInfoEl) {
+    repoInfoEl.textContent = sourceReady
+      ? (GH_SOURCE.owner + "/" + GH_SOURCE.repo + " @ " + GH_SOURCE.branch + " → " + GH_SOURCE.path)
+      : "Not set - edit GH_SOURCE at the top of app.js first.";
   }
+  // Reflect the saved token into the form field (but never expose it
+  // anywhere outside this device).
+  if ($("#ghToken")) $("#ghToken").value = token;
 }
 
 /* ---------------------------------------------------------------------
@@ -627,7 +726,7 @@ function attachManifest() {
 }
 
 const SERVICE_WORKER_SRC = `
-const CACHE = 'radharaman-v3';
+const CACHE = 'radharaman-v4';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -636,8 +735,22 @@ self.addEventListener('activate', e => {
     )).then(() => self.clients.claim())
   );
 });
+// Requests that must ALWAYS hit the network and must NEVER be cached or
+// served from cache - this is the live post data (GitHub raw file) and
+// the GitHub API itself. Serving these from cache is exactly what makes
+// deletes/publishes look "stuck" for customers, so they are excluded
+// from the cache-and-fallback strategy entirely.
+function isNoCacheRequest(url) {
+  return url.includes('raw.githubusercontent.com') ||
+         url.includes('api.github.com') ||
+         url.includes('/data/posts.json');
+}
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  if (isNoCacheRequest(e.request.url)) {
+    e.respondWith(fetch(e.request, { cache: 'no-store' }));
+    return;
+  }
   e.respondWith(
     fetch(e.request).then(res => {
       const resClone = res.clone();
@@ -909,7 +1022,8 @@ function confirmDeletePost(postId) {
     body.querySelector("#confirmDeletePost").addEventListener("click", async () => {
       closeModal();
       await deletePost(postId);
-      toast("Post deleted - publish to update the live site.");
+      const canAutoPublish = githubSourceIsComplete(GH_SOURCE) && !!getGithubToken();
+      toast(canAutoPublish ? "Post deleted - syncing to everyone now." : "Post deleted locally - add your publish token to sync it live.");
     });
   });
 }
@@ -1043,21 +1157,13 @@ function initEventHandlers() {
   if (formGithubConfig) {
     formGithubConfig.addEventListener("submit", (e) => {
       e.preventDefault();
-      const cfg = {
-        owner: sanitizeText($("#ghOwner").value, 100),
-        repo: sanitizeText($("#ghRepo").value, 100),
-        branch: sanitizeText($("#ghBranch").value, 100) || "main",
-        path: sanitizeText($("#ghPath").value, 200) || "data/posts.json",
-        token: $("#ghToken").value.trim()
-      };
-      setGithubConfig(cfg);
-      toast("GitHub connection saved on this device.");
+      setGithubToken($("#ghToken").value.trim());
+      toast("Publish token saved on this device.");
       renderPublishPanel();
-      startPolling(); // pick up the new source immediately
     });
   }
   const btnPublishNow = $("#btnPublishNow");
-  if (btnPublishNow) btnPublishNow.addEventListener("click", publishToGithub);
+  if (btnPublishNow) btnPublishNow.addEventListener("click", () => publishToGithub());
 
   const btnProfileWhatsapp = $("#btnProfileWhatsapp");
   if (btnProfileWhatsapp) btnProfileWhatsapp.addEventListener("click", () => openWhatsAppChat());
@@ -1112,7 +1218,8 @@ async function handleCreatePostSubmit(e) {
   btn.disabled = true; btn.textContent = "Posting…";
   try {
     await createPost({ imageData: STATE._pendingImageData, caption, category });
-    toast("Posted locally - go to Publish to push it live.");
+    const canAutoPublish = githubSourceIsComplete(GH_SOURCE) && !!getGithubToken();
+    toast(canAutoPublish ? "Posted! Syncing to everyone now." : "Posted locally - add your publish token to sync it live.");
     $("#formCreatePost").reset();
     $("#createImgPreview").classList.add("hidden");
     $("#createImgPlaceholder").classList.remove("hidden");
