@@ -1072,6 +1072,9 @@ async function renderPostCard(post) {
         <button class="action-btn react-btn ${myReaction ? "liked" : ""}" data-action="react-toggle" aria-label="Like or react to this post" style="${myReaction ? "color:" + REACTIONS[myReaction.type].color + ";" : ""}">
           ${myReaction ? `<span aria-hidden="true">${REACTIONS[myReaction.type].emoji}</span>` : `<i class="fa-regular fa-heart" aria-hidden="true"></i>`} ${myReaction ? REACTIONS[myReaction.type].label : "Like"}
         </button>
+        <div class="reaction-picker hidden" data-picker>
+          ${Object.entries(REACTIONS).map(([type, r]) => `<button type="button" data-react-type="${type}" aria-label="React with ${r.label}"><span aria-hidden="true">${r.emoji}</span></button>`).join("")}
+        </div>
       </div>
       <a class="action-btn" href="tel:${CONFIG.SHOP_PHONE}" aria-label="Call the shop">
         <i class="fa-solid fa-phone" aria-hidden="true"></i>
@@ -1085,9 +1088,6 @@ async function renderPostCard(post) {
         <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
         Share
       </button>
-    </div>
-    <div class="reaction-picker hidden" data-picker>
-      ${Object.entries(REACTIONS).map(([type, r]) => `<button type="button" data-react-type="${type}" aria-label="React with ${r.label}"><span aria-hidden="true">${r.emoji}</span></button>`).join("")}
     </div>
   </article>`;
 }
@@ -1199,6 +1199,13 @@ function closeModal() { $("#modalHost").innerHTML = ""; }
    Event wiring
    --------------------------------------------------------------------- */
 function initEventHandlers() {
+  // Close any open reaction bubble when the user taps anywhere else on
+  // the page (the react button itself stops propagation, so this only
+  // fires for genuine outside taps).
+  document.addEventListener("click", () => {
+    $all(".reaction-picker:not(.hidden)").forEach(p => p.classList.add("hidden"));
+  });
+
   $("#btnContinueCustomer").addEventListener("click", () => showScreenGroup("customer-login"));
   $("#btnGoOwnerLogin").addEventListener("click", () => showScreenGroup("owner-login"));
   $("#backFromCustomerLogin").addEventListener("click", () => showScreenGroup("entry"));
@@ -1389,8 +1396,31 @@ function toggleTheme() {
   STATE.theme = STATE.theme === "dark" ? "light" : "dark";
   document.documentElement.setAttribute("data-theme", STATE.theme);
   localStorage.setItem("rr_theme", STATE.theme);
+  syncThemeControls();
+}
+
+/* Keep every theme control (header moon/sun icon + profile slider) in
+   sync with STATE.theme. Called after any toggle AND once at boot so a
+   restored "dark" preference is reflected immediately, not just after
+   the user taps something. */
+function syncThemeControls() {
+  const isDark = STATE.theme === "dark";
+
   const toggleEl = $("#toggleDarkMode");
-  if (toggleEl) { toggleEl.classList.toggle("on", STATE.theme === "dark"); toggleEl.setAttribute("aria-pressed", STATE.theme === "dark"); }
+  if (toggleEl) {
+    toggleEl.classList.toggle("on", isDark);
+    toggleEl.setAttribute("aria-pressed", String(isDark));
+  }
+
+  const headerBtn = $("#btnThemeToggle");
+  const headerIcon = $("#themeIconMoon");
+  if (headerIcon) {
+    headerIcon.className = isDark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+  }
+  if (headerBtn) {
+    headerBtn.setAttribute("aria-pressed", String(isDark));
+    headerBtn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  }
 }
 
 function updateOfflineBanner() {
@@ -1403,6 +1433,7 @@ function updateOfflineBanner() {
 async function init() {
   const savedTheme = localStorage.getItem("rr_theme");
   if (savedTheme === "dark") { STATE.theme = "dark"; document.documentElement.setAttribute("data-theme", "dark"); }
+  syncThemeControls();
 
   STATE.lastPublishedAt = localStorage.getItem("rr_last_published_at");
   STATE.lastSyncedAt = localStorage.getItem("rr_last_synced_at");
