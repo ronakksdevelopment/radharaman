@@ -160,6 +160,19 @@ button{cursor:pointer;}
 .icon-btn:active{transform:scale(0.92);}
 .post-delete-btn{width:34px;height:34px;flex-shrink:0;margin-left:auto;}
 
+/* ===== Live sync indicator ===== */
+#btnRefreshSync i{transition:transform .2s ease;}
+#btnRefreshSync.syncing i{animation:spinrefresh .8s linear infinite;}
+@keyframes spinrefresh{to{transform:rotate(360deg);}}
+.sync-status-bar{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:10.5px;font-weight:600;color:var(--kiwi);
+  background:var(--kiwi-light);
+  padding:5px 10px;letter-spacing:.02em;
+  position:sticky;top:calc(62px + var(--safe-top));z-index:39;
+}
+.sync-status-bar i{font-size:9px;}
+
 /* ===== Badges / stamps ===== */
 .stamp{
   display:inline-flex;align-items:center;gap:6px;
@@ -431,6 +444,24 @@ button{cursor:pointer;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 ::-webkit-scrollbar{width:0;height:0;}
+
+/* ===== Floating scroll-to-top / refresh pill ===== */
+.scrolltop-refresh{
+  position:fixed;top:calc(10px + var(--safe-top));left:50%;
+  transform:translateX(-50%) translateY(-60px);
+  z-index:60;
+  display:flex;align-items:center;gap:7px;
+  background:var(--ink);color:var(--cream);
+  border:none;border-radius:100px;
+  padding:9px 16px 9px 13px;
+  font-size:12px;font-weight:700;
+  box-shadow:var(--shadow-lg);
+  opacity:0;pointer-events:none;
+  transition:transform .22s ease,opacity .22s ease;
+}
+.scrolltop-refresh.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+.scrolltop-refresh i{font-size:13px;}
+.scrolltop-refresh.syncing i{animation:spinrefresh .8s linear infinite;}
 </style>
 </head>
 <body>
@@ -456,7 +487,7 @@ button{cursor:pointer;}
         Owner Login
       </button>
     </div>
-    <p class="entry-footnote">New posts appear automatically - no need to refresh the page.</p>
+    <p class="entry-footnote">New posts appear automatically every few seconds - or tap the refresh arrow at the top any time for an instant check.</p>
   </section>
 
   <!-- Customer login -->
@@ -526,11 +557,18 @@ button{cursor:pointer;}
         </div>
       </div>
       <div class="topbar-actions">
+        <button class="icon-btn" id="btnRefreshSync" aria-label="Refresh - checks live site now" title="Refresh">
+          <i class="fa-solid fa-arrow-rotate-right" aria-hidden="true"></i>
+        </button>
         <button class="icon-btn" id="btnThemeToggle" aria-label="Toggle dark mode">
           <i id="themeIconMoon" class="fa-solid fa-moon" aria-hidden="true"></i>
         </button>
       </div>
     </header>
+    <div class="sync-status-bar">
+      <i class="fa-solid fa-tower-broadcast" aria-hidden="true"></i>
+      <span id="lastSyncLabel">Not synced yet</span>
+    </div>
 
     <!-- Home feed -->
     <section id="screen-home" class="screen">
@@ -719,6 +757,11 @@ button{cursor:pointer;}
 </div>
 
 <div id="modalHost"></div>
+
+<button type="button" class="scrolltop-refresh" id="btnScrollTopRefresh" aria-label="Scroll to top and refresh">
+  <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+  Refresh
+</button>
 
 <script src="app.js"></script>
 </body>
