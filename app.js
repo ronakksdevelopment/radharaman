@@ -103,15 +103,31 @@ function setGithubToken(token) {
    pick up new posts - it requires no authentication since GitHub raw
    content for a public repo is public. */
 function githubRawUrl(src) {
-  // Double cache-bust: a unique query string PLUS a random component, so
-  // no browser, CDN, proxy, or service worker can ever match this URL
-  // against a previously cached response - every poll is a guaranteed
-  // fresh network hit.
+  // Double cache-bust: a unique query string PLUS a random component.
+  // NOTE: this alone is NOT enough to guarantee freshness - see below.
   return "https://raw.githubusercontent.com/" + src.owner + "/" + src.repo + "/" + src.branch + "/" + src.path
     + "?t=" + Date.now() + "&r=" + Math.random().toString(36).slice(2);
 }
 function githubContentsApiUrl(src) {
   return "https://api.github.com/repos/" + src.owner + "/" + src.repo + "/contents/" + src.path;
+}
+/* IMPORTANT BUG FIX: raw.githubusercontent.com is served through a CDN
+   (Fastly) that caches responses at the EDGE for a few minutes. That
+   edge cache sits in front of the request entirely and is completely
+   outside the browser - "cache: no-store" and a random query string
+   only stop the *browser* from caching, they do nothing to the CDN.
+   That's exactly why customers stopped seeing new posts ~a minute
+   after a publish: their poll was landing on a stale edge node, not a
+   stale local cache.
+   Fix: poll the GitHub REST Contents API instead (api.github.com),
+   which is not behind that raw-file edge cache and correctly honors
+   no-store on every request, and ask it to hand back the raw file
+   bytes directly via the vnd.github.raw content-type so no base64
+   decode step is needed. This is what every device (owner AND every
+   customer) now actually polls every 10 seconds. */
+function githubContentsRawApiUrl(src) {
+  return "https://api.github.com/repos/" + src.owner + "/" + src.repo + "/contents/" + src.path
+    + "?ref=" + encodeURIComponent(src.branch) + "&_=" + Date.now() + "&r=" + Math.random().toString(36).slice(2);
 }
 
 /* ---------------------------------------------------------------------
@@ -660,19 +676,28 @@ function networkErrorMessage(netErr) {
    visit already picks up whatever the owner has published. */
 async function pollForUpdates() {
   if (!githubSourceIsComplete(GH_SOURCE)) return;
+  setSyncIndicator("syncing");
   try {
-    // IMPORTANT: no custom headers here (no Cache-Control/Pragma). Those
-    // trigger a CORS preflight (OPTIONS) request, and
-    // raw.githubusercontent.com rejects preflighted requests entirely
-    // (403 on OPTIONS), which makes every fetch() throw a generic
-    // "Failed to fetch" with no useful reason. The cache: "no-store"
-    // fetch option plus the random query string in githubRawUrl() are
-    // enough to guarantee a fresh network hit without ever adding a
-    // header that would trigger a preflight.
-    const res = await fetch(githubRawUrl(GH_SOURCE), { cache: "no-store" });
-    if (!res.ok) return; // file may not exist yet - nothing to merge
+    // Primary path: GitHub's Contents API (api.github.com), NOT
+    // raw.githubusercontent.com. The raw-file host sits behind a CDN
+    // edge cache that ignores our cache-busting query string and our
+    // "cache: no-store" fetch option (both only affect the browser,
+    // not GitHub's own CDN) - that stale edge cache was exactly what
+    // made new posts vanish for customers again ~a minute after
+    // publishing. The Contents API is not behind that cache and
+    // honors no-store correctly on every request, so this always
+    // reflects whatever was most recently published, live.
+    const res = await fetch(githubContentsRawApiUrl(GH_SOURCE), {
+      cache: "no-store",
+      headers: { Accept: "application/vnd.github.raw+json" }
+    });
+    if (res.status === 404) { setSyncIndicator("idle"); return; } // file may not exist yet - nothing to merge
+    if (!res.ok) throw new Error("status " + res.status);
     const data = await res.json();
     await mergeRemotePosts(data.posts);
+    STATE.lastSyncedAt = new Date().toISOString();
+    localStorage.setItem("rr_last_synced_at", STATE.lastSyncedAt);
+    renderSyncStatus();
     if (STATE.role === "owner") {
       renderPublishPanel();
       // Self-healing retry: if an earlier auto-publish failed (e.g. the
@@ -684,9 +709,25 @@ async function pollForUpdates() {
         publishToGithub({ silent: true });
       }
     }
+    setSyncIndicator("idle");
   } catch (err) {
-    // Network hiccups or an unreachable file are expected occasionally
-    // (e.g. offline devices) - fail silently and try again next tick.
+    // Fallback path: if the API call itself failed (rate limit, network
+    // hiccup), fall back once to the raw CDN URL so a poll tick still
+    // has a chance to succeed instead of doing nothing for 10s.
+    try {
+      const res2 = await fetch(githubRawUrl(GH_SOURCE), { cache: "no-store" });
+      if (res2.ok) {
+        const data2 = await res2.json();
+        await mergeRemotePosts(data2.posts);
+        STATE.lastSyncedAt = new Date().toISOString();
+        localStorage.setItem("rr_last_synced_at", STATE.lastSyncedAt);
+        renderSyncStatus();
+      }
+    } catch (err2) {
+      // Both paths failed - expected occasionally (offline devices).
+      // Fail silently and try again next tick.
+    }
+    setSyncIndicator("idle");
   }
 }
 
@@ -698,6 +739,31 @@ function startPolling() {
 function stopPolling() {
   if (STATE.pollTimer) { clearInterval(STATE.pollTimer); STATE.pollTimer = null; }
 }
+
+/* ---------------------------------------------------------------------
+   Live sync indicator (topbar refresh arrow + "last synced" label)
+   --------------------------------------------------------------------- */
+function setSyncIndicator(mode) {
+  const btn = $("#btnRefreshSync");
+  if (!btn) return;
+  const icon = btn.querySelector("i");
+  if (mode === "syncing") {
+    btn.classList.add("syncing");
+    btn.setAttribute("aria-label", "Syncing…");
+  } else {
+    btn.classList.remove("syncing");
+    btn.setAttribute("aria-label", "Refresh - checks live site now");
+  }
+}
+function renderSyncStatus() {
+  const el = $("#lastSyncLabel");
+  if (!el) return;
+  const last = STATE.lastSyncedAt || localStorage.getItem("rr_last_synced_at");
+  if (!last) { el.textContent = "Not synced yet"; return; }
+  el.textContent = "Live · synced " + relativeOrTime(last);
+}
+// Keep the "synced Xm ago" label ticking even between poll cycles.
+setInterval(() => { if (STATE.role) renderSyncStatus(); }, 15000);
 
 function renderPublishPanel() {
   if (STATE.role !== "owner") return;
@@ -770,7 +836,7 @@ function attachManifest() {
 }
 
 const SERVICE_WORKER_SRC = `
-const CACHE = 'radharaman-v5';
+const CACHE = 'radharaman-v6';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(
@@ -906,6 +972,7 @@ function enterApp() {
   renderProfile();
   renderSessionCodeEverywhere();
   loadPostsFromDB().then(renderFeed);
+  renderSyncStatus();
   startPolling();
 }
 const SCREEN_TITLES = { home: "Home feed", create: "New post", publish: "Publish updates", activity: "Activity", profile: "Your profile" };
@@ -1199,6 +1266,15 @@ function initEventHandlers() {
 
   $("#btnThemeToggle").addEventListener("click", toggleTheme);
 
+  const btnRefreshSync = $("#btnRefreshSync");
+  if (btnRefreshSync) {
+    btnRefreshSync.addEventListener("click", async () => {
+      if (btnRefreshSync.classList.contains("syncing")) return;
+      await pollForUpdates();
+      toast("Up to date - synced just now.");
+    });
+  }
+
   $("#cameraInput").addEventListener("change", handleImageSelect);
   $("#galleryInput").addEventListener("change", handleImageSelect);
   $("#postCaption").addEventListener("input", () => {
@@ -1237,6 +1313,28 @@ function initEventHandlers() {
 
   window.addEventListener("online", updateOfflineBanner);
   window.addEventListener("offline", updateOfflineBanner);
+
+  initScrollTopRefresh();
+}
+
+/* ---------------------------------------------------------------------
+   Floating scroll-to-top / refresh pill
+   --------------------------------------------------------------------- */
+function initScrollTopRefresh() {
+  const btn = $("#btnScrollTopRefresh");
+  if (!btn) return;
+  const SHOW_AFTER_PX = 220;
+  window.addEventListener("scroll", () => {
+    btn.classList.toggle("show", window.scrollY > SHOW_AFTER_PX);
+  }, { passive: true });
+  btn.addEventListener("click", async () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (btn.classList.contains("syncing")) return;
+    btn.classList.add("syncing");
+    await pollForUpdates();
+    btn.classList.remove("syncing");
+    toast("Up to date - synced just now.");
+  });
 }
 
 async function handleImageSelect(e) {
@@ -1307,6 +1405,7 @@ async function init() {
   if (savedTheme === "dark") { STATE.theme = "dark"; document.documentElement.setAttribute("data-theme", "dark"); }
 
   STATE.lastPublishedAt = localStorage.getItem("rr_last_published_at");
+  STATE.lastSyncedAt = localStorage.getItem("rr_last_synced_at");
 
   try {
     STATE.db = await openDB();
